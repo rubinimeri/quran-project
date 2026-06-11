@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className={`antialiased`}>{children}</body>
+      <body className={`antialiased dark`}>{children}</body>
     </html>
   );
 }
