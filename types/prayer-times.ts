@@ -26,7 +26,7 @@ export type PrayerTimesResponse =
               abbreviated: string;
               expanded: string;
             };
-            holidays: [any];
+            holidays: [string];
             adjustedHolidays: [string];
             method: string;
           };

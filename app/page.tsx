@@ -2,6 +2,7 @@ import PrayerCountdown from "@/components/prayer-countdown";
 import { Card, CardContent } from "@/components/ui/card";
 import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
 import { PrayerTimes, PrayerTimesResponse } from "@/types/prayer-times";
+import quranClient from "@/lib/quran";
 import {
   IconMoon,
   IconSun,
@@ -10,6 +11,7 @@ import {
   IconSunset2,
 } from "@tabler/icons-react";
 import { format } from "date-fns";
+import Surah from "@/components/surah";
 
 const HIDDEN_PRAYER_TIMES = ["Midnight", "Sunset", "Firstthird", "Lastthird"];
 
@@ -45,6 +47,15 @@ export default async function Page() {
   const prayerTimes = await getPrayerTimes();
   const tomorrowsPrayerTimes = await getPrayerTimes(1);
 
+  let surahs;
+  try {
+    surahs = await quranClient.content.v4.chapters.list();
+  } catch (err) {
+    console.error("Failed to fetch surahs: ", err);
+  }
+
+  console.log(surahs);
+
   if (
     prayerTimes.code === ERROR_CODE ||
     typeof prayerTimes.data === "string" ||
@@ -63,6 +74,7 @@ export default async function Page() {
 
   return (
     <main className="p-4 flex flex-col items-center justify-center gap-8">
+      {/* Prayer Times Section */}
       <h1 className="text-center font-extrabold text-2xl">Salah</h1>
       <PrayerCountdown
         prayerTimes={filteredPrayerTimes}
@@ -81,6 +93,26 @@ export default async function Page() {
           ))}
         </CardContent>
       </Card>
+
+      {/* Quran surahs section */}
+      {/* So how do we start?
+       * First we call the serverside API to get the Quran surahs
+       * Then we map those surahs to a Surah component
+       * surah component should be a link and I will try to imitate the quran.com design
+       */}
+      <section className="grid grid-cols-3 w-full max-w-5xl gap-3">
+        {surahs &&
+          surahs.map((surah) => (
+            <Surah
+              key={surah.id}
+              name={surah.nameSimple}
+              ayahs={surah.versesCount}
+              translatedName={surah.translatedName}
+              arabicName={surah.nameArabic}
+              order={surah.id}
+            />
+          ))}
+      </section>
     </main>
   );
 }
