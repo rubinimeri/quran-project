@@ -32,16 +32,14 @@ export function groupChaptersByJuz(
   const chapterById = new Map(chapters.map((c) => [c.id, c]));
 
   const sorted = [...juzs].sort((a, b) =>
-    order === "asc"
-      ? a.juzNumber - b.juzNumber
-      : b.juzNumber - a.juzNumber,
+    order === "asc" ? a.juzNumber - b.juzNumber : b.juzNumber - a.juzNumber,
   );
 
   return sorted.map((juz) => {
     const chapterIds = Object.keys(juz.verseMapping).map(Number);
     const grouped = chapterIds
       .map((id) => chapterById.get(id))
-      .filter((c): c is Chapter => c !== undefined);
+      .filter((c, index): c is Chapter => c !== undefined);
 
     const sortedGroup = grouped.sort((a, b) =>
       order === "asc" ? a.id - b.id : b.id - a.id,

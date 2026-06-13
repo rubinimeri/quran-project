@@ -6,7 +6,11 @@ import {
   IconMoon,
 } from "@tabler/icons-react";
 
-import { PRAYER_META, PRAYER_ORDER, type ShownPrayer } from "@/lib/prayer-times";
+import {
+  PRAYER_META,
+  PRAYER_ORDER,
+  type ShownPrayer,
+} from "@/lib/prayer-times";
 import type { PrayerTimes } from "@/types/prayer-times";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
@@ -22,7 +26,10 @@ type PrayerTimesListProps = {
   nextPrayerName: keyof PrayerTimes;
 };
 
-export function PrayerTimesList({ times, nextPrayerName }: PrayerTimesListProps) {
+export function PrayerTimesList({
+  times,
+  nextPrayerName,
+}: PrayerTimesListProps) {
   return (
     <ul className="w-full max-w-md mx-auto flex flex-col gap-2">
       {PRAYER_ORDER.map((name) => {
@@ -48,16 +55,12 @@ export function PrayerTimesList({ times, nextPrayerName }: PrayerTimesListProps)
             )}
 
             {/* Icon */}
-            <span
-              className={
-                isNext ? "text-gold" : "text-gold-muted/60"
-              }
-            >
+            <span className={isNext ? "text-gold" : "text-gold-muted/60"}>
               {ICON_MAP[meta.iconKey]}
             </span>
 
             {/* Names */}
-            <div className="flex flex-col flex-1 min-w-0">
+            <div className="flex items-center justify-between flex-1 min-w-0">
               <span
                 className={[
                   "text-base font-light leading-tight transition-colors",

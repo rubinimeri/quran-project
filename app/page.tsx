@@ -21,7 +21,7 @@ export default async function Page() {
           ?.nameSimple ?? "")
       : "";
 
-  console.log(dailyVerse);
+  console.log(juzs);
 
   return (
     <main className="flex flex-col gap-16 pb-24">
@@ -31,7 +31,13 @@ export default async function Page() {
         <DailyVerse verse={dailyVerse} surahName={surahName} />
       )}
 
-      {chapters && juzs && <SurahExplorer chapters={chapters} juzs={juzs} />}
+      {chapters && juzs && (
+        <SurahExplorer
+          chapters={chapters}
+          // API returns double the data so had to use this filter to get every second juz
+          juzs={[...juzs].filter((juz, index) => index % 2 !== 0)}
+        />
+      )}
 
       {!chapters && (
         <p className="text-center text-muted-foreground text-sm py-12">
