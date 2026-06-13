@@ -64,7 +64,7 @@ describe("Ayah", () => {
     );
     expect(
       screen.getByText(
-        "In the name of Allah, the Entirely Merciful1, the Especially Merciful.",
+        "In the name of Allah, the Entirely Merciful, the Especially Merciful.",
       ),
     ).toBeInTheDocument();
     expect(screen.queryByText(/<sup/)).not.toBeInTheDocument();

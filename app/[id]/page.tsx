@@ -36,8 +36,6 @@ export default async function SurahPage({
       .catch(() => null),
   ]);
 
-  console.log(verses);
-
   if (!chapter || !verses) {
     return (
       <main className="flex items-center justify-center min-h-screen">

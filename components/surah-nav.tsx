@@ -21,6 +21,7 @@ export function SurahNav({ currentId }: SurahNavProps) {
         size="sm"
         className={linkClass}
         render={<Link href="/" />}
+        nativeButton={false}
       >
         ← All Surahs
       </Button>
@@ -33,6 +34,7 @@ export function SurahNav({ currentId }: SurahNavProps) {
             size="sm"
             className={linkClass}
             render={<Link href={`/${currentId - 1}`} />}
+            nativeButton={false}
           >
             ← {currentId - 1}
           </Button>

@@ -57,14 +57,16 @@ const renderer = ({
 }: CountdownRenderProps) => {
   if (completed) {
     return (
-      <span className="font-black text-7xl w-full tabular-nums">00:00:00</span>
+      <span className="text-6xl font-light tabular-nums text-gold tracking-tight">
+        00:00:00
+      </span>
     );
   }
 
   const totalHours = days * 24 + hours;
 
   return (
-    <div className="font-black text-7xl w-full tabular-nums">
+    <div className="text-6xl font-light tabular-nums text-gold tracking-tight">
       {String(totalHours).padStart(2, "0")}:{String(minutes).padStart(2, "0")}:
       {String(seconds).padStart(2, "0")}
     </div>
@@ -87,8 +89,10 @@ export default function PrayerCountdown({
   }
 
   return (
-    <div className="w-sm text-center">
-      <h2 className="font-medium uppercase">Next prayer in</h2>
+    <div className="flex flex-col items-center gap-3 text-center">
+      <p className="text-xs uppercase tracking-[0.25em] text-gold-muted font-sans">
+        Next prayer in
+      </p>
       <Countdown
         date={timeToNextPrayer}
         renderer={renderer}

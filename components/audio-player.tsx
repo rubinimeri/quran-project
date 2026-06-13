@@ -64,9 +64,19 @@ export function AudioPlayer({ audioUrl, surahName }: AudioPlayerProps) {
     setPlaying((p) => !p);
   }
 
+  function startPlay() {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (playing) {
+      audio.play();
+      setPlaying(true);
+    }
+  }
+
   function handleSeek(value: number | readonly number[]) {
     const audio = audioRef.current;
     if (!audio) return;
+    audio.pause();
     const next = typeof value === "number" ? value : value[0];
     audio.currentTime = next;
     setCurrent(next);
@@ -112,6 +122,7 @@ export function AudioPlayer({ audioUrl, surahName }: AudioPlayerProps) {
             step={1}
             value={[current]}
             onValueChange={handleSeek}
+            onPointerUp={startPlay}
             aria-label="Seek"
             className=""
           />
