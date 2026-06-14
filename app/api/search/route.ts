@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SearchMode } from "@quranjs/api";
+import type { SearchResponse } from "@quranjs/api";
 
 import quranClient from "@/lib/quran";
 
+// quranClient.search.query() has a bug: QuranSearch.search() calls fetcher.fetch()
+// which uses contentBaseUrl ("https://apis.quran.foundation") instead of the correct
+// search base ("https://apis.quran.foundation/search"). Using the raw operation routes
+// through request("search", ...) which resolves to the right URL.
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get("q")?.trim();
 
@@ -11,12 +15,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const response = await quranClient.search.query({
-      query: q,
-      mode: SearchMode.Quick,
-      navigationalResultsNumber: 5,
-      versesResultsNumber: 10,
-    });
+    const response = (await quranClient.search.raw.searchControllerSearch({
+      query: { query: q, size: 20 },
+    })) as SearchResponse;
 
     return NextResponse.json(response);
   } catch {
