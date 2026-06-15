@@ -2,9 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconBook, IconNotes, IconSearch } from "@tabler/icons-react";
+import { IconBook, IconNotes, IconSearch, IconX } from "@tabler/icons-react";
 
-import { Dialog, DialogOverlay, DialogPortal } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogOverlay,
+  DialogPortal,
+} from "@/components/ui/dialog";
+import { Button } from "./ui/button";
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 
 type SearchResultItem = {
   resultType: string;
@@ -30,7 +37,10 @@ type SearchDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-function buildHref(item: SearchResultItem, category: "surah" | "verse"): string {
+function buildHref(
+  item: SearchResultItem,
+  category: "surah" | "verse",
+): string {
   if (category === "surah") return `/${item.key}`;
   const keyStr = String(item.key);
   const surahId = keyStr.includes(":") ? keyStr.split(":")[0] : keyStr;
@@ -56,7 +66,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
       try {
         const res = await fetch(
           `/api/search?q=${encodeURIComponent(trimmedQuery)}`,
-          { signal: controller.signal }
+          { signal: controller.signal },
         );
         const data: SearchResponse = await res.json();
         setResults(data);
@@ -116,11 +126,13 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
     }
   }
 
+  console.log(results);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPortal>
         <DialogOverlay />
-        <div
+        <DialogPrimitive.Popup
           className="fixed inset-0 z-50 flex items-start justify-center pt-[12vh] px-4"
           onKeyDown={handleKeyDown}
         >
@@ -157,6 +169,13 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                   Clear
                 </button>
               )}
+              <Button
+                variant={"outline"}
+                size={"icon-xs"}
+                onClick={() => onOpenChange(false)}
+              >
+                <IconX className="text-gold-muted" />
+              </Button>
             </div>
 
             {/* Results list */}
@@ -174,7 +193,10 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                 {surahs.length > 0 && (
                   <section>
                     <div className="px-5 py-2 flex items-center gap-2">
-                      <IconBook size={11} className="text-muted-foreground/40" />
+                      <IconBook
+                        size={11}
+                        className="text-muted-foreground/40"
+                      />
                       <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/50 font-medium">
                         Surahs
                       </span>
@@ -259,7 +281,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
               </div>
             )}
           </div>
-        </div>
+        </DialogPrimitive.Popup>
       </DialogPortal>
     </Dialog>
   );
