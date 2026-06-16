@@ -74,3 +74,16 @@ npm test:watch        # Watch mode for TDD
 - Do not create new utility files if something similar already exists
 - Do not leave `console.log` in committed code
 - Do not skip tests under time pressure — flag it instead
+
+---
+
+## Design Context
+
+Strategic and visual design context for Nur lives in two root files — read them before any UI work:
+
+- **`PRODUCT.md`** — register (**brand**: the aesthetic leads), users (daily worshippers + learners), brand personality (**warm · devotional · approachable**), anti-references, design principles, accessibility (WCAG AA + extra reading support).
+- **`DESIGN.md`** — the visual system: OKLCH palette (deep night + luminous gold), typography (Cormorant Garamond / Amiri / Inter), elevation (tonal + gold glow), and component specs.
+
+Core principles: the words come first; calm is a feature; warmth without compromising reverence; welcome every level; light ("Nur") as identity. Anti-references: never a SaaS dashboard (no stat cards / KPI tiles), never austere or intimidating.
+
+Maintained via the `/impeccable` skill.
