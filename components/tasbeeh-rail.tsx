@@ -61,9 +61,9 @@ export function TasbeehRail({
                       onDelete(t.id);
                     }
                   }}
-                  className="ml-0.5 opacity-0 group-hover:opacity-70 group-focus-within:opacity-70 hover:opacity-100! transition-opacity text-destructive"
+                  className="ml-0.5 p-1 opacity-40 group-hover:opacity-70 group-focus-within:opacity-100 active:opacity-100 hover:opacity-100! transition-opacity text-destructive"
                 >
-                  <IconTrash size={11} aria-hidden />
+                  <IconTrash size={13} aria-hidden />
                 </span>
               )}
             </button>
