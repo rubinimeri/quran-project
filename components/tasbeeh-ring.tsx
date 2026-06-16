@@ -43,26 +43,36 @@ export function TasbeehRing({
           className="absolute inset-0 w-full h-full -rotate-90"
           aria-hidden
         >
-          {/* Track */}
+          <defs>
+            <linearGradient
+              id="tasbeeh-arc-gradient"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="100%"
+            >
+              <stop offset="0%" stopColor="oklch(0.62 0.08 85)" />
+              <stop offset="100%" stopColor="oklch(0.86 0.12 85)" />
+            </linearGradient>
+          </defs>
+          {/* Track — a recessed dark groove */}
           <circle
             cx={SIZE / 2}
             cy={SIZE / 2}
             r={R}
             fill="none"
-            stroke="oklch(0.8 0.11 85 / 0.12)"
-            strokeWidth={STROKE}
+            stroke="oklch(0 0 0 / 0.5)"
+            strokeWidth={STROKE + 2}
             strokeLinecap="round"
           />
-          {/* Progress arc */}
+          {/* Progress arc — a muted-to-bright gold gradient */}
           <circle
             cx={SIZE / 2}
             cy={SIZE / 2}
             r={R}
             fill="none"
-            stroke={
-              isInfinity ? "oklch(0.8 0.11 85 / 0.35)" : "oklch(0.8 0.11 85)"
-            }
-            strokeWidth={STROKE}
+            stroke="url(#tasbeeh-arc-gradient)"
+            strokeWidth={12}
             strokeLinecap="round"
             strokeDasharray={CIRCUMFERENCE}
             strokeDashoffset={isInfinity ? 0 : dashOffset}

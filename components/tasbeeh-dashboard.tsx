@@ -12,6 +12,7 @@ import {
   type TasbeehState,
 } from "@/lib/tasbeeh";
 import { playTick } from "@/lib/tick";
+import { Separator } from "@/components/ui/separator";
 import { AddTasbeehDialog } from "@/components/add-tasbeeh-dialog";
 import { TasbeehControls } from "@/components/tasbeeh-controls";
 import { TasbeehRail } from "@/components/tasbeeh-rail";
@@ -80,46 +81,49 @@ export function TasbeehDashboard() {
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen px-4 pt-12 pb-10 gap-8">
-      {/* Header */}
-      <div className="w-full max-w-md mx-auto text-center relative">
-        <p className="text-[9px] uppercase tracking-[0.3em] text-gold-muted mb-1">
-          Remembrance
-        </p>
-        <div className="flex items-center justify-center gap-3">
-          <h1
-            className="text-4xl font-light text-foreground"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Tasbeeh
-          </h1>
-          <span
-            className="text-xl text-gold-muted/70 leading-none mt-1"
-            style={{ fontFamily: "var(--font-arabic)" }}
-            lang="ar"
-          >
-            تَسْبِيح
-          </span>
-        </div>
-        <div className="flex items-center justify-center gap-3 mt-2">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gold/20" />
-          <span className="text-gold/50 text-xs">❖</span>
-          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-gold/20" />
-        </div>
+    <div className="flex flex-col items-center min-h-screen px-4 pt-16 pb-10 gap-8">
+      {/* Header — Arabic first, the reverent centerpiece (mirrors /dua) */}
+      <div className="w-full max-w-md mx-auto flex flex-col items-center">
+        <h1
+          className="lantern-rise delay-100 text-6xl sm:text-7xl leading-none text-gold"
+          style={{ fontFamily: "var(--font-arabic)" }}
+          lang="ar"
+          dir="rtl"
+        >
+          تَسْبِيح
+        </h1>
 
-        {/* Add button — top right */}
-        <div className="absolute right-0 top-0">
-          <AddTasbeehDialog onAdd={handleAdd} />
+        {/* English name — supporting cluster settles together */}
+        <p
+          className="mt-6 fade-soft delay-400 text-3xl sm:text-4xl font-light tracking-[0.15em] text-foreground"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          Tasbeeh
+        </p>
+
+        {/* Subtitle */}
+        <p className="mt-4 fade-soft delay-400 text-sm text-muted-foreground max-w-xs text-center leading-relaxed">
+          A quiet space for dhikr — count, remember, and let the heart settle.
+        </p>
+
+        {/* Ornamental divider */}
+        <div className="mt-6 fade-soft delay-400 flex items-center gap-3 w-full max-w-40">
+          <Separator className="flex-1 bg-gold-muted/25" />
+          <span className="text-gold-muted/60 text-xs">&#10070;</span>
+          <Separator className="flex-1 bg-gold-muted/25" />
         </div>
       </div>
 
-      {/* Rail */}
-      <TasbeehRail
-        tasbeehs={state.tasbeehs}
-        activeId={state.activeId}
-        onSelect={handleSelect}
-        onDelete={handleDelete}
-      />
+      {/* Rail + Add — the dhikr list, with Add always reachable at its end */}
+      <div className="w-full max-w-md mx-auto flex items-center gap-2 fade-soft delay-500">
+        <TasbeehRail
+          tasbeehs={state.tasbeehs}
+          activeId={state.activeId}
+          onSelect={handleSelect}
+          onDelete={handleDelete}
+        />
+        <AddTasbeehDialog onAdd={handleAdd} />
+      </div>
 
       {/* Ring */}
       <div className="flex-1 flex items-center justify-center">
