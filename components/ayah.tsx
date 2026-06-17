@@ -2,6 +2,11 @@ import { stripHtmlTags } from "@/lib/format";
 import { Separator } from "@/components/ui/separator";
 import { VerseActions } from "./verse-actions";
 
+// Gentle staggered cascade for the first verses on screen; capped so later
+// (infinite-scroll appended) verses settle together rather than delaying ever
+// longer. Matches the dua list's reveal rhythm.
+const STAGGER = ["", "delay-100", "delay-200", "delay-300", "delay-400", "delay-500"];
+
 type AyahTranslation = {
   text: string;
   resourceName?: string;
@@ -11,11 +16,28 @@ type AyahProps = {
   verseNumber: number;
   textUthmani: string;
   translations: AyahTranslation[];
+  ref: React.RefObject<HTMLElement[]>;
+  id: number;
 };
 
-export function Ayah({ verseNumber, textUthmani, translations }: AyahProps) {
+export function Ayah({
+  verseNumber,
+  textUthmani,
+  translations,
+  ref,
+  id,
+}: AyahProps) {
   return (
-    <article className="group relative flex flex-col gap-5 py-8 border-b border-border/40 last:border-0">
+    <article
+      ref={(element) => {
+        if (element) {
+          ref.current[id] = element;
+        } else {
+          delete ref.current[id];
+        }
+      }}
+      className={`fade-up ${STAGGER[Math.min(id, STAGGER.length - 1)]} group relative flex flex-col gap-5 py-8 border-b border-border/40 last:border-0`}
+    >
       {/* Verse number medallion */}
       <div className="flex items-center gap-3">
         <div className="flex items-center justify-center w-8 h-8 rounded-full border border-gold/40 text-gold text-xs font-semibold shrink-0">
@@ -31,7 +53,7 @@ export function Ayah({ verseNumber, textUthmani, translations }: AyahProps) {
 
       {/* Arabic text */}
       <p
-        className="text-right text-3xl leading-[2.2] text-foreground"
+        className="text-right text-2xl sm:text-3xl leading-[2.2] text-foreground"
         style={{ fontFamily: "var(--font-arabic)" }}
         lang="ar"
         dir="rtl"

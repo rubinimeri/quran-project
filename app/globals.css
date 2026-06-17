@@ -196,6 +196,39 @@
     }
   }
 
+  /* Skeleton placeholder: glass-over-night base with a single gold light
+     sweeping across, as if the lantern passes over the surface. */
+  .skeleton-shimmer {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--muted);
+  }
+  .skeleton-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      oklch(0.8 0.11 85 / 0.1) 50%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    animation: skeleton-sweep 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+
+  @keyframes skeleton-sweep {
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes skeleton-pulse {
+    50% {
+      opacity: 0.55;
+    }
+  }
+
   /* Reduced motion: entrance reveals resolve to their visible end-state
      instantly. Content is never gated on motion. */
   @media (prefers-reduced-motion: reduce) {
@@ -203,6 +236,13 @@
     .fade-soft,
     .lantern-rise {
       animation: none;
+    }
+    /* Trade the moving sweep for a quiet opacity breath. */
+    .skeleton-shimmer::after {
+      animation: none;
+    }
+    .skeleton-shimmer {
+      animation: skeleton-pulse 2s ease-in-out infinite;
     }
   }
 

@@ -13,9 +13,10 @@ type AudioPlayerProps = {
 
 function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
-  const m = Math.floor(seconds / 60);
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
   const s = Math.floor(seconds % 60);
-  return `${m}:${s.toString().padStart(2, "0")}`;
+  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 }
 
 export function AudioPlayer({ audioUrl, surahName }: AudioPlayerProps) {
@@ -113,7 +114,7 @@ export function AudioPlayer({ audioUrl, surahName }: AudioPlayerProps) {
 
         {/* Seek bar */}
         <div className="flex-1 flex items-center gap-2">
-          <span className="text-[10px] text-muted-foreground tabular-nums w-8 text-right shrink-0">
+          <span className="text-[10px] text-muted-foreground tabular-nums text-right w-max">
             {formatTime(current)}
           </span>
           <Slider

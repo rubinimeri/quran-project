@@ -11,7 +11,7 @@ export default async function Page() {
     quranClient.content.v4.verses
       .random({
         fields: { chapterId: true, text_uthmani: true },
-        translations: [88],
+        translations: [20],
       })
       .catch(() => null),
   ]);

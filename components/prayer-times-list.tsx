@@ -21,6 +21,10 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   moon: <IconMoon size={16} />,
 };
 
+// Gentle staggered cascade as the prayer rows reveal, matching the dua list
+// and ayah list rhythm.
+const STAGGER = ["", "delay-100", "delay-200", "delay-300", "delay-400", "delay-500"];
+
 type PrayerTimesListProps = {
   times: [keyof PrayerTimes, string][];
   nextPrayerName: keyof PrayerTimes;
@@ -32,7 +36,7 @@ export function PrayerTimesList({
 }: PrayerTimesListProps) {
   return (
     <ul className="w-full max-w-md mx-auto flex flex-col gap-2">
-      {PRAYER_ORDER.map((name) => {
+      {PRAYER_ORDER.map((name, index) => {
         const entry = times.find(([n]) => n === name);
         if (!entry) return null;
         const [, time] = entry;
@@ -43,6 +47,8 @@ export function PrayerTimesList({
           <li
             key={name}
             className={[
+              "fade-up",
+              STAGGER[Math.min(index, STAGGER.length - 1)],
               "relative flex items-center gap-4 rounded-xl border px-5 py-4 transition-all duration-300",
               isNext
                 ? "border-gold/50 bg-gold/5 shadow-[0_0_20px_oklch(0.8_0.11_85/0.08)]"

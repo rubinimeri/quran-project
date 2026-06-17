@@ -89,7 +89,7 @@ export default function PrayerCountdown({
   }
 
   return (
-    <div className="flex flex-col items-center gap-3 text-center">
+    <div className="fade-soft delay-300 flex flex-col items-center gap-3 text-center">
       <p className="text-xs uppercase tracking-[0.25em] text-gold-muted font-sans">
         Next prayer in
       </p>

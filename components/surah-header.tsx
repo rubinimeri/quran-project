@@ -21,14 +21,14 @@ export function SurahHeader({
 }: SurahHeaderProps) {
   return (
     <header className="flex flex-col items-center text-center pt-12 pb-8 gap-4">
-      {/* Eyebrow */}
-      <p className="text-xs uppercase tracking-[0.25em] text-gold-muted font-sans">
+      {/* Eyebrow — settles in early and quiet */}
+      <p className="fade-soft delay-100 text-xs uppercase tracking-[0.25em] text-gold-muted font-sans">
         Surah {id} &middot; {revelationPlace} &middot; {versesCount} Ayahs
       </p>
 
-      {/* Arabic name */}
+      {/* Arabic name — the lantern rising from dusk (signature reveal) */}
       <h1
-        className="text-6xl leading-tight text-gold"
+        className="lantern-rise delay-200 text-6xl leading-tight text-gold"
         style={{ fontFamily: "var(--font-arabic)" }}
         lang="ar"
         dir="rtl"
@@ -36,19 +36,21 @@ export function SurahHeader({
         {nameArabic}
       </h1>
 
-      {/* English name */}
+      {/* English name — supporting cluster settles together (delay-400) */}
       <h2
-        className="text-3xl font-light tracking-wide text-foreground"
+        className="fade-soft delay-400 text-3xl font-light tracking-wide text-foreground"
         style={{ fontFamily: "var(--font-display)" }}
       >
         {nameSimple}
       </h2>
 
       {/* Translated meaning */}
-      <p className="text-sm text-gold-foreground italic">{translatedName}</p>
+      <p className="fade-soft delay-400 text-sm text-gold-foreground italic">
+        {translatedName}
+      </p>
 
       {/* Ornamental divider */}
-      <div className="flex items-center gap-3 mt-2 w-full max-w-xs">
+      <div className="fade-soft delay-400 flex items-center gap-3 mt-2 w-full max-w-xs">
         <Separator className="flex-1 bg-gold-muted/30" />
         <span className="text-gold-muted text-xs">&#10070;</span>
         <Separator className="flex-1 bg-gold-muted/30" />
@@ -57,7 +59,7 @@ export function SurahHeader({
       {/* Bismillah */}
       {bismillahPre && (
         <p
-          className="text-2xl text-gold-muted/80 mt-1"
+          className="fade-soft delay-500 text-2xl text-gold-muted/80 mt-1"
           style={{ fontFamily: "var(--font-arabic)" }}
           lang="ar"
           dir="rtl"

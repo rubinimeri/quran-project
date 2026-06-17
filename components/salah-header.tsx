@@ -21,14 +21,14 @@ export function SalahHeader({
 
   return (
     <header className="flex flex-col items-center text-center pt-12 pb-8 gap-4">
-      {/* Eyebrow */}
-      <p className="text-xs uppercase tracking-[0.25em] text-gold-muted font-sans">
+      {/* Eyebrow — settles in early and quiet */}
+      <p className="fade-soft delay-100 text-xs uppercase tracking-[0.25em] text-gold-muted font-sans">
         Prayer Times &middot; {locationLabel}
       </p>
 
-      {/* Arabic title */}
+      {/* Arabic title — the lantern rising from dusk (signature reveal) */}
       <h1
-        className="text-6xl leading-tight text-gold"
+        className="lantern-rise delay-200 text-6xl leading-tight text-gold"
         style={{ fontFamily: "var(--font-arabic)" }}
         lang="ar"
         dir="rtl"
@@ -36,16 +36,16 @@ export function SalahHeader({
         صلاة
       </h1>
 
-      {/* English title */}
+      {/* English title — supporting cluster settles together (delay-400) */}
       <h2
-        className="text-3xl font-light tracking-wide text-foreground"
+        className="fade-soft delay-400 text-3xl font-light tracking-wide text-foreground"
         style={{ fontFamily: "var(--font-display)" }}
       >
         Salah
       </h2>
 
       {/* Hijri date */}
-      <div className="flex flex-col items-center gap-0.5">
+      <div className="fade-soft delay-400 flex flex-col items-center gap-0.5">
         <p className="text-sm text-gold-muted/90">
           {hijriDay} {hijriMonth} {hijriYear} AH
         </p>
@@ -53,7 +53,7 @@ export function SalahHeader({
       </div>
 
       {/* Ornamental divider */}
-      <div className="flex items-center gap-3 mt-2 w-full max-w-xs">
+      <div className="fade-soft delay-400 flex items-center gap-3 mt-2 w-full max-w-xs">
         <Separator className="flex-1 bg-gold-muted/30" />
         <span className="text-gold-muted text-xs">&#10070;</span>
         <Separator className="flex-1 bg-gold-muted/30" />

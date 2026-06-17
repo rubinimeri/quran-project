@@ -126,8 +126,6 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
     }
   }
 
-  console.log(results);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPortal>

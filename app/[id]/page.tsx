@@ -2,8 +2,8 @@ import { notFound } from "next/navigation";
 import quranClient from "@/lib/quran";
 import { SurahHeader } from "@/components/surah-header";
 import { SurahNav } from "@/components/surah-nav";
-import { Ayah } from "@/components/ayah";
 import { AudioPlayer } from "@/components/audio-player";
+import { AyahList } from "@/components/ayah-list";
 
 const MISHARY_RECITER_ID = "7";
 
@@ -23,20 +23,14 @@ export default async function SurahPage({
     typeof quranClient.content.v4.chapters.get
   >[0];
 
-  const [chapter, verses, audio] = await Promise.all([
+  const [chapter, audio] = await Promise.all([
     quranClient.content.v4.chapters.get(chapterId).catch(() => null),
-    quranClient.content.v4.verses
-      .byChapter(chapterId, {
-        fields: { text_uthmani: true },
-        translations: [88, 20],
-      })
-      .catch(() => null),
     quranClient.content.v4.audio.chapterRecitation
       .get(MISHARY_RECITER_ID, chapterId)
       .catch(() => null),
   ]);
 
-  if (!chapter || !verses) {
+  if (!chapter) {
     return (
       <main className="flex items-center justify-center min-h-screen">
         <p className="text-muted-foreground">Failed to load surah.</p>
@@ -59,21 +53,7 @@ export default async function SurahPage({
           bismillahPre={chapter.bismillahPre}
         />
 
-        <section className="mt-6">
-          {verses.map((verse) => (
-            <Ayah
-              key={verse.id}
-              verseNumber={verse.verseNumber}
-              textUthmani={verse.textUthmani ?? ""}
-              translations={
-                verse.translations?.map((t) => ({
-                  text: t.text,
-                  resourceName: t.resourceName,
-                })) ?? []
-              }
-            />
-          ))}
-        </section>
+        <AyahList chapter={chapterId} />
 
         <SurahNav currentId={numericId} />
       </div>

@@ -39,7 +39,7 @@ export function SurahExplorer({ chapters, juzs }: SurahExplorerProps) {
 
       <Tabs defaultValue="surah">
         {/* Tabs + sort row */}
-        <div className="flex items-center justify-between gap-4 mb-1">
+        <div className="flex items-center justify-between mb-1">
           <TabsList>
             <TabsTrigger value="surah">Surah</TabsTrigger>
             <TabsTrigger value="juz">Juz</TabsTrigger>
@@ -51,14 +51,13 @@ export function SurahExplorer({ chapters, juzs }: SurahExplorerProps) {
             variant="ghost"
             size="sm"
             onClick={() => setOrder((o) => (o === "asc" ? "desc" : "asc"))}
-            className="text-xs uppercase tracking-[0.15em] text-muted-foreground hover:text-gold gap-1.5"
+            className="text-xs uppercase tracking-[0.15em] px-0 text-muted-foreground hover:text-gold gap-1.5"
           >
             {order === "asc" ? (
               <IconArrowUp size={13} />
             ) : (
               <IconArrowDown size={13} />
             )}
-            {order === "asc" ? "Asc" : "Desc"}
           </Button>
         </div>
 
