@@ -10,7 +10,7 @@ export function SurahCard({ chapter }: SurahCardProps) {
 
   return (
     <Link href={`/${id}`} className="group block">
-      <article className="relative flex items-center gap-3 rounded-xl border border-border/40 bg-card/30 px-4 py-3.5 transition-all duration-200 hover:border-gold/40 hover:bg-card/60 hover:-translate-y-px hover:shadow-[0_4px_24px_oklch(0.8_0.11_85/0.06)]">
+      <article className="relative flex items-center gap-3 rounded-xl border border-border/40 bg-card/30 px-4 py-3.5 transition-all duration-200 hover:border-gold/40 hover:bg-card/60 hover:-translate-y-px hover:shadow-[0_4px_24px_var(--glow-sm)]">
         {/* Number medallion */}
         <div className="flex items-center justify-center w-8 h-8 rounded-full border border-gold/30 text-gold-muted text-xs font-semibold shrink-0 group-hover:border-gold/60 group-hover:text-gold transition-colors">
           {id}

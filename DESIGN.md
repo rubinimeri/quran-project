@@ -25,13 +25,13 @@ typography:
     lineHeight: 2.1
     letterSpacing: "normal"
   body:
-    fontFamily: "Inter, system-ui, sans-serif"
+    fontFamily: "Satoshi, system-ui, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.6
     letterSpacing: "normal"
   label:
-    fontFamily: "Inter, system-ui, sans-serif"
+    fontFamily: "Satoshi, system-ui, sans-serif"
     fontSize: "0.75rem"
     fontWeight: 500
     lineHeight: 1.4
@@ -121,16 +121,16 @@ A deep nocturnal ground lit by a single warm gold, with a cool teal used only as
 
 **Display Font:** Cormorant Garamond (with Georgia, serif)
 **Arabic Font:** Amiri (with Scheherazade, serif)
-**Body / Label Font:** Inter (with system-ui, sans-serif)
+**Body / Label Font:** Satoshi (with system-ui, sans-serif)
 
-**Character:** A serif-led, editorial pairing. Cormorant Garamond brings high-contrast, light-weight elegance to English headings and the wordmark; Amiri carries the Qur'anic Arabic with classical naskh grace; Inter handles UI text, labels, and translations with quiet neutrality. The contrast axis is serif-display against humanist-sans — never two similar sans-serifs.
+**Character:** A serif-led, editorial pairing. Cormorant Garamond brings high-contrast, light-weight elegance to English headings and the wordmark; Amiri carries the Qur'anic Arabic with classical naskh grace; Satoshi — a warm geometric-grotesque — handles UI text, labels, and translations with quiet, friendly neutrality. The contrast axis is serif-display against grotesque-sans — never two similar sans-serifs.
 
 ### Hierarchy
 - **Display** (Cormorant Garamond, 300, `clamp(2.25rem, 7vw, 4.5rem)`, line-height 1, letter-spacing 0.15em): Hero titles and the "Nur" wordmark. Airy, generously tracked, unhurried.
 - **Arabic** (Amiri, 400/700, `clamp(1.75rem, 6vw, 4.5rem)`, line-height 2.1, RTL): Qur'anic verses, duas, and dhikr. The protagonist of every screen — always given the most room.
 - **Headline** (Cormorant Garamond, 400–500, `1.5rem–2rem`): Section and page titles in reading views.
-- **Body** (Inter, 400, `0.875rem`, line-height 1.6): Translations and supporting copy. Often italic for quoted meaning. Cap measure at 65–75ch.
-- **Label** (Inter, 500, `0.75rem`, letter-spacing 0.2em, uppercase): Section eyebrows, reference citations, nav links. The wide-tracked small-caps voice.
+- **Body** (Satoshi, 400, `0.875rem`, line-height 1.6): Translations and supporting copy. Often italic for quoted meaning. Cap measure at 65–75ch.
+- **Label** (Satoshi, 500, `0.75rem`, letter-spacing 0.2em, uppercase): Section eyebrows, reference citations, nav links. The wide-tracked small-caps voice.
 
 ### Named Rules
 **The Arabic-Breathes Rule.** Arabic script is never set tighter than line-height 2.0. Diacritics must never crowd. When in doubt, add vertical room — legibility of the sacred text is non-negotiable.

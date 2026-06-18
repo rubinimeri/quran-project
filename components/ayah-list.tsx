@@ -1,76 +1,157 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { Ayah } from "./ayah";
-import { AyahSkeleton, AyahListSkeleton } from "./ayah-skeleton";
-import { fetchVerses } from "@/lib/verses";
+import { fetchVerses, versePage } from "@/lib/verses";
 import { Verse } from "@quranjs/api";
 
-export function AyahList({ chapter }: { chapter: string | number }) {
-  const [verses, setVerses] = useState<Verse[] | null>(null);
-  const [page, setPage] = useState(1);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const verseRefs = useRef<HTMLDivElement[]>([]);
-  const isFetching = useRef(false);
+// useLayoutEffect warns during SSR; fall back to useEffect on the server.
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    async function load() {
-      setPage(1);
-      setVerses(null);
-      setIsLoading(true);
-      setError(null);
+type AyahListProps = {
+  chapter: string | number;
+  versesCount: number;
+  startingVerse?: number;
+};
+
+export function AyahList({
+  chapter,
+  versesCount,
+  startingVerse,
+}: AyahListProps) {
+  const [versesByNumber, setVersesByNumber] = useState<Map<number, Verse>>(
+    new Map(),
+  );
+  const [error, setError] = useState<string | null>(null);
+  const [highlightedVerse, setHighlightedVerse] = useState<number | undefined>(
+    startingVerse,
+  );
+
+  const loadedPages = useRef<Set<number>>(new Set());
+  const loadingPages = useRef<Set<number>>(new Set());
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const hasScrolledToTarget = useRef(false);
+  // While anchoring, keep the target verse pinned at the offset it landed on, so
+  // verses loading in above it (taller than their skeletons) don't push it away.
+  // Released the moment the user scrolls themselves.
+  const anchorTop = useRef<number | null>(null);
+  const isAnchoring = useRef(false);
+
+  const loadPage = useCallback(
+    async (page: number) => {
+      if (
+        page < 1 ||
+        loadedPages.current.has(page) ||
+        loadingPages.current.has(page)
+      ) {
+        return;
+      }
+      loadingPages.current.add(page);
       try {
-        const data = await fetchVerses(chapter, 1);
-        setVerses(data);
+        const newVerses = await fetchVerses(chapter, page);
+        loadedPages.current.add(page);
+        setVersesByNumber((prev) => {
+          const next = new Map(prev);
+          for (const verse of newVerses) {
+            next.set(verse.verseNumber, verse);
+          }
+          return next;
+        });
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load verses");
       } finally {
-        setIsLoading(false);
+        loadingPages.current.delete(page);
       }
-    }
+    },
+    [chapter],
+  );
 
-    load();
-  }, [chapter]);
-
+  // Load the starting page on mount. AyahList is remounted (via a `key` on the
+  // surah + target) when either changes, so all state resets naturally. The load
+  // is deferred to after the first paint so the skeleton scaffold renders first.
   useEffect(() => {
-    const last = verseRefs.current[verseRefs.current.length - 1];
-    if (!last) return;
+    if (!startingVerse) {
+      window.scrollTo(0, 0);
+    }
+    const page = startingVerse ? versePage(startingVerse) : 1;
+    const frame = requestAnimationFrame(() => loadPage(page));
+    return () => cancelAnimationFrame(frame);
+  }, [startingVerse, loadPage]);
 
+  // One observer for the whole list; placeholders register themselves via the
+  // callback ref below and trigger their page to load as they near the viewport.
+  useEffect(() => {
     const observer = new IntersectionObserver(
-      async ([entry]) => {
-        if (!entry.isIntersecting || isFetching.current) return;
-        observer.unobserve(entry.target);
-        isFetching.current = true;
-        setIsFetchingMore(true);
-
-        try {
-          const newVerses = await fetchVerses(chapter, page + 1);
-          if (newVerses.length === 0) return;
-          setVerses((prev) => (prev ? [...prev, ...newVerses] : newVerses));
-          setPage((p) => p + 1);
-        } catch (err) {
-          setError(
-            err instanceof Error ? err.message : "Failed to load verses",
-          );
-        } finally {
-          isFetching.current = false;
-          setIsFetchingMore(false);
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const page = Number((entry.target as HTMLElement).dataset.page);
+          if (page) loadPage(page);
         }
       },
-      { rootMargin: "0px 0px 600px 0px" },
+      { rootMargin: "600px 0px 600px 0px" },
     );
+    observerRef.current = observer;
+    return () => {
+      observer.disconnect();
+      observerRef.current = null;
+    };
+  }, [loadPage]);
 
-    observer.observe(last);
-    return () => observer.disconnect();
-  }, [verses, page, chapter]);
+  // After the starting page's verses are in place, jump to + highlight the
+  // target. Instant (not smooth) so we can record its landed offset and pin it.
+  useEffect(() => {
+    if (!startingVerse || hasScrolledToTarget.current) return;
+    if (!versesByNumber.has(startingVerse)) return;
 
-  if (isLoading) {
-    return <AyahListSkeleton />;
-  }
+    const el = document.getElementById(`verse-${startingVerse}`);
+    if (!el) return;
+    hasScrolledToTarget.current = true;
+    el.scrollIntoView({ block: "center" });
+    anchorTop.current = el.getBoundingClientRect().top;
+    isAnchoring.current = true;
+
+    const timer = setTimeout(() => setHighlightedVerse(undefined), 2600);
+    return () => clearTimeout(timer);
+  }, [versesByNumber, startingVerse]);
+
+  // Release the anchor as soon as the user initiates their own scroll, so later
+  // upward loads don't yank them back to the target.
+  useEffect(() => {
+    if (!startingVerse) return;
+    const release = () => {
+      isAnchoring.current = false;
+    };
+    window.addEventListener("wheel", release, { passive: true });
+    window.addEventListener("touchmove", release, { passive: true });
+    window.addEventListener("keydown", release);
+    return () => {
+      window.removeEventListener("wheel", release);
+      window.removeEventListener("touchmove", release);
+      window.removeEventListener("keydown", release);
+    };
+  }, [startingVerse]);
+
+  // When a page loads above the target, the target shifts down; re-pin it to the
+  // offset it landed on. Runs before paint to avoid a visible jump. No-op for
+  // pages loaded below the target (its offset is unchanged).
+  useIsomorphicLayoutEffect(() => {
+    if (!isAnchoring.current || anchorTop.current === null || !startingVerse) {
+      return;
+    }
+    const el = document.getElementById(`verse-${startingVerse}`);
+    if (!el) return;
+    const delta = el.getBoundingClientRect().top - anchorTop.current;
+    if (delta !== 0) window.scrollBy(0, delta);
+  }, [versesByNumber, startingVerse]);
 
   if (error) {
     return (
@@ -82,14 +163,25 @@ export function AyahList({ chapter }: { chapter: string | number }) {
 
   return (
     <section className="mt-6">
-      {verses &&
-        verses.map((verse, index) => (
+      {Array.from({ length: versesCount }, (_, i) => {
+        const verseNumber = i + 1;
+        const verse = versesByNumber.get(verseNumber);
+
+        // Observe placeholders so their page loads as they near the viewport;
+        // stop observing once the real verse is in place.
+        const articleRef = (el: HTMLElement | null) => {
+          if (!el) return;
+          if (verse) observerRef.current?.unobserve(el);
+          else observerRef.current?.observe(el);
+        };
+
+        return verse ? (
           <Ayah
-            ref={verseRefs}
-            key={verse.id}
-            id={index}
-            verseNumber={verse.verseNumber}
+            key={verseNumber}
+            verseNumber={verseNumber}
             textUthmani={verse.textUthmani ?? ""}
+            highlighted={verseNumber === highlightedVerse}
+            articleRef={articleRef}
             translations={
               verse.translations?.map((t) => ({
                 text: t.text,
@@ -97,8 +189,15 @@ export function AyahList({ chapter }: { chapter: string | number }) {
               })) ?? []
             }
           />
-        ))}
-      {isFetchingMore && <AyahSkeleton />}
+        ) : (
+          <Ayah
+            key={verseNumber}
+            verseNumber={verseNumber}
+            loading
+            articleRef={articleRef}
+          />
+        );
+      })}
     </section>
   );
 }

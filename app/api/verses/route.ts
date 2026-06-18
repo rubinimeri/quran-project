@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import quranClient from "@/lib/quran";
 import { ChapterId, Verse } from "@quranjs/api";
+import { VERSES_PER_PAGE } from "@/lib/verses";
 
 export type GetVersesResult = {
   result: { verses: Verse[] };
@@ -21,9 +22,10 @@ export async function GET(request: NextRequest) {
       chapter as ChapterId,
       {
         page: Number(page),
-        fields: { text_uthmani: true },
-        translations: [20],
-        per_page: 50,
+        fields: { textUthmani: true },
+        translationFields: { resourceName: true },
+        translations: [20, 57],
+        perPage: VERSES_PER_PAGE,
       },
     );
 

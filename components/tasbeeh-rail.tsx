@@ -30,7 +30,7 @@ export function TasbeehRail({
             className={[
               "shrink-0 flex items-center gap-1.5 rounded-full border px-3 py-[0.3rem] text-sm transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 group",
               isActive
-                ? "border-gold/50 bg-gold/10 text-gold shadow-[0_0_16px_oklch(0.8_0.11_85/0.12)]"
+                ? "border-gold/50 bg-gold/10 text-gold shadow-[0_0_16px_var(--glow-md)]"
                 : "border-border/40 bg-card/30 text-muted-foreground hover:border-gold/30 hover:text-foreground",
             ].join(" ")}
           >

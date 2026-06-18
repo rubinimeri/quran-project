@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
       mode: SearchMode.Quick,
       navigationalResultsNumber: 5,
       versesResultsNumber: 10,
+      get_text: "1",
     });
 
     return NextResponse.json(response);

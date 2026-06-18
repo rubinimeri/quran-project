@@ -13,6 +13,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "coverage/**",
+    // Skill scripts, worktrees, and their build artifacts:
+    ".claude/**",
   ]),
 ]);
 

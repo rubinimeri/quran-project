@@ -9,10 +9,13 @@ const MISHARY_RECITER_ID = "7";
 
 export default async function SurahPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ startingVerse?: string }>;
 }) {
   const { id } = await params;
+  const { startingVerse: startingVerseRaw } = await searchParams;
   const numericId = parseInt(id, 10);
 
   if (isNaN(numericId) || numericId < 1 || numericId > 114) {
@@ -29,6 +32,16 @@ export default async function SurahPage({
       .get(MISHARY_RECITER_ID, chapterId)
       .catch(() => null),
   ]);
+
+  const parsedStartingVerse = Number(startingVerseRaw);
+  const startingVerse =
+    startingVerseRaw &&
+    Number.isInteger(parsedStartingVerse) &&
+    parsedStartingVerse >= 1 &&
+    chapter &&
+    parsedStartingVerse <= chapter.versesCount
+      ? parsedStartingVerse
+      : undefined;
 
   if (!chapter) {
     return (
@@ -53,7 +66,12 @@ export default async function SurahPage({
           bismillahPre={chapter.bismillahPre}
         />
 
-        <AyahList chapter={chapterId} />
+        <AyahList
+          key={`${numericId}-${startingVerse ?? ""}`}
+          chapter={chapterId}
+          versesCount={chapter.versesCount}
+          startingVerse={startingVerse}
+        />
 
         <SurahNav currentId={numericId} />
       </div>

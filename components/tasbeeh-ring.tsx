@@ -51,8 +51,8 @@ export function TasbeehRing({
               x2="100%"
               y2="100%"
             >
-              <stop offset="0%" stopColor="oklch(0.62 0.08 85)" />
-              <stop offset="100%" stopColor="oklch(0.86 0.12 85)" />
+              <stop offset="0%" style={{ stopColor: "var(--tasbeeh-arc-start)" }} />
+              <stop offset="100%" style={{ stopColor: "var(--tasbeeh-arc-end)" }} />
             </linearGradient>
           </defs>
           {/* Track — a recessed dark groove */}
@@ -61,7 +61,7 @@ export function TasbeehRing({
             cy={SIZE / 2}
             r={R}
             fill="none"
-            stroke="oklch(0 0 0 / 0.5)"
+            style={{ stroke: "var(--tasbeeh-track)" }}
             strokeWidth={STROKE + 2}
             strokeLinecap="round"
           />

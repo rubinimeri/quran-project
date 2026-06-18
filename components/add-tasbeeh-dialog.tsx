@@ -72,7 +72,7 @@ export function AddTasbeehDialog({ onAdd }: AddTasbeehDialogProps) {
         <IconPlus size={16} aria-hidden />
       </DialogTrigger>
 
-      <DialogContent className=" rounded-2xl border border-gold/20 bg-card/95 px-6 py-8 ring-0 shadow-[0_0_20px_oklch(0.8_0.11_85/0.08)]">
+      <DialogContent className=" rounded-2xl border border-gold/20 bg-card/95 px-6 py-8 ring-0 shadow-[0_0_20px_var(--glow-sm)]">
         <span
           className="absolute top-4 right-5 text-gold-muted/20 text-2xl select-none"
           aria-hidden

@@ -45,7 +45,7 @@ export function SurahHeader({
       </h2>
 
       {/* Translated meaning */}
-      <p className="fade-soft delay-400 text-sm text-gold-foreground italic">
+      <p className="fade-soft delay-400 text-sm text-muted-foreground">
         {translatedName}
       </p>
 
@@ -60,7 +60,7 @@ export function SurahHeader({
       {bismillahPre && (
         <p
           className="fade-soft delay-500 text-2xl text-gold-muted/80 mt-1"
-          style={{ fontFamily: "var(--font-arabic)" }}
+          style={{ fontFamily: "var(--font-quran)" }}
           lang="ar"
           dir="rtl"
         >

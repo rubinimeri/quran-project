@@ -23,7 +23,6 @@ type SearchResultItem = {
 type SearchResponse = {
   result?: {
     navigation: SearchResultItem[];
-    verses: SearchResultItem[];
   };
 };
 
@@ -43,8 +42,11 @@ function buildHref(
 ): string {
   if (category === "surah") return `/${item.key}`;
   const keyStr = String(item.key);
-  const surahId = keyStr.includes(":") ? keyStr.split(":")[0] : keyStr;
-  return `/${surahId}`;
+  if (keyStr.includes(":")) {
+    const [surahId, ayahId] = keyStr.split(":");
+    return `/${surahId}?startingVerse=${ayahId}`;
+  }
+  return `/${keyStr}`;
 }
 
 export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
@@ -95,11 +97,13 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
     : [];
 
   const verses: FlatResult[] = trimmedQuery
-    ? (results?.result?.verses.map((r) => ({
-        ...r,
-        href: buildHref(r, "verse"),
-        category: "verse" as const,
-      })) ?? [])
+    ? (results?.result?.navigation
+        .filter((r) => r.resultType === "ayah")
+        .map((r) => ({
+          ...r,
+          href: buildHref(r, "verse"),
+          category: "verse" as const,
+        })) ?? [])
     : [];
 
   const allResults: FlatResult[] = [...surahs, ...verses];
@@ -133,8 +137,12 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
         <DialogPrimitive.Popup
           className="fixed inset-0 z-50 flex items-start justify-center pt-[12vh] px-4"
           onKeyDown={handleKeyDown}
+          onClick={() => onOpenChange(false)}
         >
-          <div className="w-full max-w-2xl bg-card border border-border/60 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-foreground/5 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 duration-150">
+          <div
+            className="w-full max-w-2xl bg-card border border-border/60 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-foreground/5 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Search input row */}
             <div className="flex items-center gap-3 px-5 py-4 border-b border-border/40">
               {isLoading ? (
@@ -152,7 +160,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search surahs, verses…"
-                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 outline-none"
+                className="w-full flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 outline-none"
               />
               {query && (
                 <button
@@ -206,7 +214,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                         onHover={() => setFocusedIndex(i)}
                         onClick={() => navigate(item.href)}
                       >
-                        <span className="text-xs font-mono text-gold/80 w-7 text-right shrink-0">
+                        <span className="mt-0.5 text-sm font-mono text-gold/80 w-7 text-right shrink-0">
                           {item.key}
                         </span>
                         <span className="text-sm text-foreground/90 truncate flex-1">
@@ -246,13 +254,13 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                           focused={focusedIndex === globalIndex}
                           onHover={() => setFocusedIndex(globalIndex)}
                           onClick={() => navigate(item.href)}
+                          stacked
                         >
-                          <span className="text-xs font-mono text-gold/80 shrink-0 tabular-nums">
-                            {item.key}
-                          </span>
-                          <span className="text-sm text-muted-foreground/80 truncate flex-1">
-                            {item.name}
-                          </span>
+                          <span className="verse-key">{item.key}</span>
+                          <span
+                            className="verse-text"
+                            dangerouslySetInnerHTML={{ __html: item.name }}
+                          />
                         </ResultRow>
                       );
                     })}
@@ -264,7 +272,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
             {/* Empty query hint */}
             {!trimmedQuery && (
               <div className="px-5 py-5 text-center">
-                <p className="text-xs text-muted-foreground/40">
+                <p className="text-sm text-muted-foreground/40">
                   Search by surah name, number, or verse text
                 </p>
               </div>
@@ -290,19 +298,29 @@ type ResultRowProps = {
   onHover: () => void;
   onClick: () => void;
   children: React.ReactNode;
+  stacked?: boolean;
 };
 
-function ResultRow({ focused, onHover, onClick, children }: ResultRowProps) {
+function ResultRow({
+  focused,
+  onHover,
+  onClick,
+  children,
+  stacked = false,
+}: ResultRowProps) {
   return (
     <button
       type="button"
       onMouseEnter={onHover}
       onClick={onClick}
       className={[
-        "w-full flex items-center gap-3 px-5 py-2.5 text-left transition-colors cursor-pointer",
+        "w-full px-5 py-2.5 text-left transition-colors cursor-pointer border-l-2",
+        stacked
+          ? "flex flex-col items-start gap-0.5"
+          : "flex items-center gap-3",
         focused
-          ? "bg-muted/60 border-l-2 border-gold/60"
-          : "border-l-2 border-transparent hover:bg-muted/30",
+          ? "bg-muted/60 border-gold/60"
+          : "border-transparent hover:bg-muted/30",
       ].join(" ")}
     >
       {children}

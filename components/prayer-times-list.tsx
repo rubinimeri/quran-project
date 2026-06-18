@@ -51,7 +51,7 @@ export function PrayerTimesList({
               STAGGER[Math.min(index, STAGGER.length - 1)],
               "relative flex items-center gap-4 rounded-xl border px-5 py-4 transition-all duration-300",
               isNext
-                ? "border-gold/50 bg-gold/5 shadow-[0_0_20px_oklch(0.8_0.11_85/0.08)]"
+                ? "border-gold/50 bg-gold/5 shadow-[0_0_20px_var(--glow-sm)]"
                 : "border-border/40 bg-card/30",
             ].join(" ")}
           >

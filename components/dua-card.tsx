@@ -19,7 +19,7 @@ export function DuaCard({ dua, className }: DuaCardProps) {
       {/* Arabic — the reverent centerpiece */}
       <p
         className="text-right text-2xl sm:text-3xl leading-[2.1] text-foreground pl-6"
-        style={{ fontFamily: "var(--font-arabic)" }}
+        style={{ fontFamily: "var(--font-quran)" }}
         lang="ar"
         dir="rtl"
       >

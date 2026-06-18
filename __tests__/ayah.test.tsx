@@ -70,6 +70,18 @@ describe("Ayah", () => {
     expect(screen.queryByText(/<sup/)).not.toBeInTheDocument();
   });
 
+  it("renders the Arabic verse text in the Quran (QPC HAFS) font", () => {
+    render(
+      <Ayah
+        verseNumber={1}
+        textUthmani="بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+        translations={mockTranslations}
+      />,
+    );
+    const arabic = screen.getByText("بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ");
+    expect(arabic.style.fontFamily).toContain("--font-quran");
+  });
+
   it("renders the second translation text", () => {
     render(
       <Ayah
