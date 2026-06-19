@@ -2,6 +2,8 @@ import { stripHtmlTags } from "@/lib/format";
 import { Separator } from "@/components/ui/separator";
 import { versePage } from "@/lib/verses";
 import { VerseActions } from "./verse-actions";
+import { Button } from "./ui/button";
+import { IconBook } from "@tabler/icons-react";
 
 type AyahTranslation = {
   text: string;
@@ -16,7 +18,13 @@ type AyahProps = {
   highlighted?: boolean;
   active?: boolean;
   onPlay?: () => void;
+  onOpenTafsir?: () => void;
   articleRef?: (el: HTMLElement | null) => void;
+  /**
+   * Render as the header inside the tafsir dialog: drop the list-only id /
+   * scroll wiring and hide the verse actions (play, copy, tafsir trigger).
+   */
+  asHeader?: boolean;
 };
 
 function Bar({ className }: { className?: string }) {
@@ -33,17 +41,19 @@ export function Ayah({
   highlighted = false,
   active = false,
   onPlay,
+  onOpenTafsir,
   articleRef,
+  asHeader = false,
 }: AyahProps) {
   return (
     <article
-      id={`verse-${verseNumber}`}
-      data-page={versePage(verseNumber)}
-      ref={articleRef}
+      id={asHeader ? undefined : `verse-${verseNumber}`}
+      data-page={asHeader ? undefined : versePage(verseNumber)}
+      ref={asHeader ? undefined : articleRef}
       aria-busy={loading || undefined}
-      aria-current={active ? "true" : undefined}
-      style={{ scrollMarginTop: HEADER_HEIGHT_PX }}
-      className={`ayah-cv ${loading ? "" : "fade-up"} ${highlighted ? "verse-active" : ""} ${active ? "verse-active" : ""} group relative flex flex-col gap-5 py-8 border-b border-border/40 last:border-0`}
+      aria-current={!asHeader && active ? "true" : undefined}
+      style={asHeader ? undefined : { scrollMarginTop: HEADER_HEIGHT_PX }}
+      className={`ayah-cv px-6 rounded-4xl ${loading ? "" : "fade-up"} ${!asHeader && highlighted ? "verse-active" : ""} ${!asHeader && active ? "verse-active" : ""} group relative flex flex-col gap-5 ${asHeader ? "pb-6" : "py-8 border-b border-border/40 last:border-0"}`}
     >
       {/* Verse number medallion */}
       <div className="flex items-center gap-3">
@@ -105,6 +115,20 @@ export function Ayah({
               </div>
             ))}
           </div>
+
+          {/* Tafsir — active (gold) when this ayah's tafsir is already open */}
+          <button
+            type="button"
+            onClick={onOpenTafsir}
+            aria-pressed={asHeader || undefined}
+            aria-label={`Read tafsir for verse ${verseNumber}`}
+            className={`text-sm font-medium w-max flex items-center gap-1 py-1 transition-colors focus-visible:opacity-100 ${
+              asHeader ? "text-gold" : "text-muted-foreground hover:text-gold"
+            }`}
+          >
+            <IconBook size={16} />
+            Tafsirs
+          </button>
         </>
       )}
     </article>

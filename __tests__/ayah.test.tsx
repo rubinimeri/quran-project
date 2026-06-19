@@ -3,12 +3,12 @@
  */
 
 import "@testing-library/jest-dom";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { Ayah } from "@/components/ayah";
 
 const mockTranslations = [
   {
-    text: "In the name of Allah, the Entirely Merciful<sup foot_note=\"1\">1</sup>, the Especially Merciful.",
+    text: 'In the name of Allah, the Entirely Merciful<sup foot_note="1">1</sup>, the Especially Merciful.',
     resourceName: "Saheeh International",
   },
   {
@@ -110,6 +110,58 @@ describe("Ayah", () => {
       />,
     );
     expect(container.querySelector("article")).toHaveClass("ayah-cv");
+  });
+
+  it("fires onOpenTafsir when the Tafsirs button is clicked", () => {
+    const onOpenTafsir = jest.fn();
+    render(
+      <Ayah
+        verseNumber={1}
+        textUthmani="بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+        translations={mockTranslations}
+        onOpenTafsir={onOpenTafsir}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /tafsir/i }));
+    expect(onOpenTafsir).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the verse actions and marks the tafsir trigger active in the dialog header", () => {
+    render(
+      <Ayah
+        asHeader
+        verseNumber={1}
+        textUthmani="بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+        translations={mockTranslations}
+        onPlay={jest.fn()}
+      />,
+    );
+    // The tafsir trigger is still present, but flagged as the active source.
+    const tafsirButton = screen.getByRole("button", { name: /tafsir/i });
+    expect(tafsirButton).toHaveAttribute("aria-pressed", "true");
+    // Full verse actions remain available at the top.
+    expect(
+      screen.getByRole("button", { name: /copy verse/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /play this ayah/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("never highlights the dialog header, even when the verse is playing", () => {
+    const { container } = render(
+      <Ayah
+        asHeader
+        active
+        verseNumber={1}
+        textUthmani="بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+        translations={mockTranslations}
+        onPlay={jest.fn()}
+      />,
+    );
+    const article = container.querySelector("article");
+    expect(article).not.toHaveClass("verse-active");
+    expect(article).not.toHaveAttribute("aria-current");
   });
 
   it("renders the second translation text", () => {

@@ -51,7 +51,7 @@ export default async function SurahPage({
   return (
     <RecitationProvider>
       <main className="surah-glow min-h-screen pb-24">
-        <div className="max-w-2xl mx-auto px-4">
+        <div className="max-w-5xl mx-auto px-4">
           <SurahNav currentId={numericId} />
 
           <SurahHeader
@@ -69,6 +69,7 @@ export default async function SurahPage({
               key={`${numericId}-${startingVerse ?? ""}`}
               chapter={chapterId}
               versesCount={chapter.versesCount}
+              surahName={chapter.nameSimple}
               startingVerse={startingVerse}
             />
           </Suspense>

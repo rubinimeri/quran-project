@@ -51,7 +51,7 @@ export function HomeHero() {
       <div className="fade-up delay-500">
         <Button
           size="lg"
-          className="rounded-full px-8 tracking-wide text-sm uppercase"
+          className="rounded-full px-8 tracking-wide text-sm uppercase nur-kindle"
           render={<Link href="/1" />}
           nativeButton={false}
         >

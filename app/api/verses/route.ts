@@ -23,6 +23,10 @@ export async function GET(request: NextRequest) {
       {
         page: Number(page),
         fields: { textUthmani: true },
+        tafsirs: [169],
+        tafsirsFields: {
+          name: true,
+        },
         translationFields: { resourceName: true },
         translations: [20, 57],
         perPage: VERSES_PER_PAGE,

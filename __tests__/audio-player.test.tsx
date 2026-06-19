@@ -30,13 +30,26 @@ function CurrentVerse() {
   return <div data-testid="current-verse">{currentVerse ?? "none"}</div>;
 }
 
+// Mimics tapping an ayah's play button, which is what reveals the player.
+function PlayVerseButton({ verse = 1 }: { verse?: number }) {
+  const { requestVerse } = useRecitation();
+  return <button onClick={() => requestVerse(verse)}>play-verse</button>;
+}
+
 function renderPlayer() {
   return render(
     <RecitationProvider>
       <CurrentVerse />
+      <PlayVerseButton />
       <AudioPlayer chapter="1" versesCount={3} surahName="Al-Fatihah" />
     </RecitationProvider>,
   );
+}
+
+// Reveal the player by requesting a verse, then wait for the bar to appear.
+async function startPlayback() {
+  fireEvent.click(screen.getByText("play-verse"));
+  return screen.findByLabelText("Pause");
 }
 
 beforeAll(() => {
@@ -52,23 +65,21 @@ beforeEach(() => {
 });
 
 describe("AudioPlayer", () => {
-  it("shows a loading subtitle until verse audio resolves", async () => {
-    mockFetch.mockReturnValue(new Promise(() => {}));
+  it("stays hidden until a verse is played", async () => {
     renderPlayer();
-    expect(screen.getByText("Loading recitation…")).toBeInTheDocument();
-    expect(screen.getByLabelText("Play")).toBeDisabled();
+    // Let the audio load; the bar must still be hidden with nothing playing.
+    await waitFor(() => expect(mockFetch).toHaveBeenCalled());
+    expect(screen.queryByLabelText("Play")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Pause")).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("Stop and close player"),
+    ).not.toBeInTheDocument();
   });
 
-  it("labels the first ayah once audio is ready", async () => {
+  it("appears and publishes the current verse once a verse is played", async () => {
     renderPlayer();
-    expect(await screen.findByText("Ayah 1 of 3")).toBeInTheDocument();
-    expect(screen.getByLabelText("Play")).toBeEnabled();
-  });
-
-  it("publishes the current verse when playback starts", async () => {
-    renderPlayer();
-    await screen.findByText("Ayah 1 of 3");
-    fireEvent.click(screen.getByLabelText("Play"));
+    await startPlayback();
+    expect(screen.getByText("Ayah 1 of 3")).toBeInTheDocument();
     await waitFor(() =>
       expect(screen.getByTestId("current-verse")).toHaveTextContent("1"),
     );
@@ -76,7 +87,7 @@ describe("AudioPlayer", () => {
 
   it("advances to the next ayah with the next button", async () => {
     renderPlayer();
-    await screen.findByText("Ayah 1 of 3");
+    await startPlayback();
     fireEvent.click(screen.getByLabelText("Next ayah"));
     expect(await screen.findByText("Ayah 2 of 3")).toBeInTheDocument();
     expect(screen.getByTestId("current-verse")).toHaveTextContent("2");
@@ -84,8 +95,7 @@ describe("AudioPlayer", () => {
 
   it("auto-advances to the next ayah when one ends", async () => {
     const { container } = renderPlayer();
-    await screen.findByText("Ayah 1 of 3");
-    fireEvent.click(screen.getByLabelText("Play"));
+    await startPlayback();
     const audio = container.querySelector("audio") as HTMLAudioElement;
     fireEvent(audio, new Event("ended"));
     expect(await screen.findByText("Ayah 2 of 3")).toBeInTheDocument();
@@ -93,7 +103,18 @@ describe("AudioPlayer", () => {
 
   it("disables the previous button on the first ayah", async () => {
     renderPlayer();
-    await screen.findByText("Ayah 1 of 3");
+    await startPlayback();
     expect(screen.getByLabelText("Previous ayah")).toBeDisabled();
+  });
+
+  it("hides the player and clears the verse when closed", async () => {
+    renderPlayer();
+    await startPlayback();
+    fireEvent.click(screen.getByLabelText("Stop and close player"));
+    await waitFor(() =>
+      expect(screen.queryByLabelText("Pause")).not.toBeInTheDocument(),
+    );
+    expect(screen.queryByLabelText("Play")).not.toBeInTheDocument();
+    expect(screen.getByTestId("current-verse")).toHaveTextContent("none");
   });
 });

@@ -2,7 +2,6 @@ import quranClient from "@/lib/quran";
 import { HomeHero } from "@/components/home-hero";
 import { DailyVerse } from "@/components/daily-verse";
 import { SurahExplorer } from "@/components/surah-explorer";
-import { SearchMode } from "@quranjs/api";
 
 export default async function Page() {
   const [chapters, juzs, dailyVerse] = await Promise.all([

@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { Ayah } from "./ayah";
+import { TafsirDialog } from "./tafsir-dialog";
 import { fetchVerses, versePage } from "@/lib/verses";
 import { useRecitation } from "@/components/recitation-context";
 import { Verse } from "@quranjs/api";
@@ -20,12 +21,14 @@ const useIsomorphicLayoutEffect =
 type AyahListProps = {
   chapter: string | number;
   versesCount: number;
+  surahName: string;
   startingVerse?: number;
 };
 
 export function AyahList({
   chapter,
   versesCount,
+  surahName,
   startingVerse,
 }: AyahListProps) {
   const [versesByNumber, setVersesByNumber] = useState<Map<number, Verse>>(
@@ -35,6 +38,8 @@ export function AyahList({
   const [highlightedVerse, setHighlightedVerse] = useState<number | undefined>(
     startingVerse,
   );
+  // The verse whose tafsir dialog is open (null when closed).
+  const [tafsirVerse, setTafsirVerse] = useState<number | null>(null);
 
   const { currentVerse, requestVerse } = useRecitation();
   // True while we should keep the reciting ayah centred; a manual scroll turns
@@ -78,6 +83,17 @@ export function AyahList({
       }
     },
     [chapter],
+  );
+
+  // Open the tafsir dialog for a verse (also used for prev/next within it):
+  // make sure the verse's page is loaded so the dialog header has its text.
+  const openTafsir = useCallback(
+    (verseNumber: number) => {
+      if (verseNumber < 1 || verseNumber > versesCount) return;
+      setTafsirVerse(verseNumber);
+      loadPage(versePage(verseNumber));
+    },
+    [loadPage, versesCount],
   );
 
   // Load the starting page on mount. AyahList is remounted (via a `key` on the
@@ -161,19 +177,23 @@ export function AyahList({
 
   // When recitation moves to a new ayah, re-enable following and make sure its
   // page (and the next) are loaded so the verse is mounted before we scroll.
+  // Skipped while the tafsir dialog is open: playing from there must not make
+  // the page behind chase the reciter.
   useEffect(() => {
-    if (currentVerse === undefined) return;
+    if (currentVerse === undefined || tafsirVerse !== null) return;
     followingRecitation.current = true;
     const frame = requestAnimationFrame(() => {
       loadPage(versePage(currentVerse));
       loadPage(versePage(currentVerse + 1));
     });
     return () => cancelAnimationFrame(frame);
-  }, [currentVerse, loadPage]);
+  }, [currentVerse, tafsirVerse, loadPage]);
 
-  // Centre the reciting ayah once it's mounted — but only while following.
+  // Centre the reciting ayah once it's mounted — but only while following and
+  // never while the tafsir dialog is open.
   useEffect(() => {
     if (currentVerse === undefined || !followingRecitation.current) return;
+    if (tafsirVerse !== null) return;
     if (!versesByNumber.has(currentVerse)) return;
     const el = document.getElementById(`verse-${currentVerse}`);
     if (!el) return;
@@ -184,7 +204,7 @@ export function AyahList({
       behavior: prefersReduced ? "auto" : "smooth",
       block: "start",
     });
-  }, [currentVerse, versesByNumber]);
+  }, [currentVerse, tafsirVerse, versesByNumber]);
 
   // A manual scroll stops the page from chasing the reciter until the next ayah.
   useEffect(() => {
@@ -209,45 +229,74 @@ export function AyahList({
     );
   }
 
+  const activeVerse =
+    tafsirVerse !== null ? versesByNumber.get(tafsirVerse) : undefined;
+
   return (
-    <section className="mt-6">
-      {Array.from({ length: versesCount }, (_, i) => {
-        const verseNumber = i + 1;
-        const verse = versesByNumber.get(verseNumber);
+    <>
+      <section className="mt-6">
+        {Array.from({ length: versesCount }, (_, i) => {
+          const verseNumber = i + 1;
+          const verse = versesByNumber.get(verseNumber);
 
-        // Observe placeholders so their page loads as they near the viewport;
-        // stop observing once the real verse is in place.
-        const articleRef = (el: HTMLElement | null) => {
-          if (!el) return;
-          if (verse) observerRef.current?.unobserve(el);
-          else observerRef.current?.observe(el);
-        };
+          // Observe placeholders so their page loads as they near the viewport;
+          // stop observing once the real verse is in place.
+          const articleRef = (el: HTMLElement | null) => {
+            if (!el) return;
+            if (verse) observerRef.current?.unobserve(el);
+            else observerRef.current?.observe(el);
+          };
 
-        return verse ? (
-          <Ayah
-            key={verseNumber}
-            verseNumber={verseNumber}
-            textUthmani={verse.textUthmani ?? ""}
-            highlighted={verseNumber === highlightedVerse}
-            active={verseNumber === currentVerse}
-            onPlay={() => requestVerse(verseNumber)}
-            articleRef={articleRef}
-            translations={
-              verse.translations?.map((t) => ({
-                text: t.text,
-                resourceName: t.resourceName,
-              })) ?? []
-            }
-          />
-        ) : (
-          <Ayah
-            key={verseNumber}
-            verseNumber={verseNumber}
-            loading
-            articleRef={articleRef}
-          />
-        );
-      })}
-    </section>
+          return verse ? (
+            <Ayah
+              key={verseNumber}
+              verseNumber={verseNumber}
+              textUthmani={verse.textUthmani ?? ""}
+              highlighted={
+                tafsirVerse === null && verseNumber === highlightedVerse
+              }
+              active={tafsirVerse === null && verseNumber === currentVerse}
+              onPlay={() => requestVerse(verseNumber)}
+              onOpenTafsir={() => openTafsir(verseNumber)}
+              articleRef={articleRef}
+              translations={
+                verse.translations?.map((t) => ({
+                  text: t.text,
+                  resourceName: t.resourceName,
+                })) ?? []
+              }
+            />
+          ) : (
+            <Ayah
+              key={verseNumber}
+              verseNumber={verseNumber}
+              loading
+              articleRef={articleRef}
+            />
+          );
+        })}
+      </section>
+
+      <TafsirDialog
+        open={tafsirVerse !== null}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setTafsirVerse(null);
+        }}
+        chapter={chapter}
+        surahName={surahName}
+        verseNumber={tafsirVerse ?? 1}
+        versesCount={versesCount}
+        textUthmani={activeVerse?.textUthmani}
+        translations={activeVerse?.translations?.map((t) => ({
+          text: t.text,
+          resourceName: t.resourceName,
+        }))}
+        active={tafsirVerse !== null && tafsirVerse === currentVerse}
+        onPlay={
+          tafsirVerse !== null ? () => requestVerse(tafsirVerse) : undefined
+        }
+        onNavigate={openTafsir}
+      />
+    </>
   );
 }
