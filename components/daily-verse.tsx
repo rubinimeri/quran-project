@@ -32,7 +32,7 @@ export function DailyVerse({ verse, surahName }: DailyVerseProps) {
 
         {/* Arabic */}
         <p
-          className="text-right text-3xl leading-[2.2] text-foreground"
+          className="text-right text-2xl sm:text-3xl line-clamp-2 leading-[2.2] text-foreground"
           style={{ fontFamily: "var(--font-quran)" }}
           lang="ar"
           dir="rtl"
@@ -44,7 +44,7 @@ export function DailyVerse({ verse, surahName }: DailyVerseProps) {
         {translation && (
           <div className="flex flex-col gap-1">
             {translation.resourceName && (
-              <span className="text-[10px] uppercase tracking-[0.2em] text-gold-muted">
+              <span className="text-[10px] linec-clamp-3 uppercase tracking-[0.2em] text-gold-muted">
                 {translation.resourceName}
               </span>
             )}
@@ -55,7 +55,10 @@ export function DailyVerse({ verse, surahName }: DailyVerseProps) {
         )}
 
         {/* Reference */}
-        <Link href={`/${chapterId}?startingVerse=${verse.verseNumber}`} className="flex items-center gap-2 group">
+        <Link
+          href={`/${chapterId}?startingVerse=${verse.verseNumber}`}
+          className="flex items-center gap-2 group"
+        >
           <Separator className="w-6 bg-gold/40 shrink group-hover:bg-gold transition-colors" />
           <span className="text-xs shrink-0 uppercase tracking-[0.2em] text-gold-muted group-hover:text-gold transition-colors">
             {surahName} &middot; {verse.verseNumber}

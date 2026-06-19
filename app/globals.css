@@ -246,6 +246,16 @@
     );
   }
 
+  /* Off-screen ayahs reserve their space but skip layout, paint, and (for
+     skeletons) the infinite shimmer animation until they scroll near the
+     viewport — sparing long surahs hundreds of compositing/painting elements. */
+  .ayah-cv {
+    content-visibility: auto;
+    /* `auto` remembers each ayah's real height after its first render; the
+       ~400px fallback is the estimate for ayahs never yet rendered. */
+    contain-intrinsic-size: auto 400px;
+  }
+
   @keyframes skeleton-sweep {
     to {
       transform: translateX(100%);
@@ -302,6 +312,22 @@
     .verse-highlight {
       animation: none;
       box-shadow: 0 0 0 1px var(--gold);
+    }
+  }
+
+  /* Currently-reciting ayah — a steady gold ring + glow that follows playback */
+  .verse-active {
+    border-radius: var(--radius);
+    background: color-mix(in oklch, var(--gold) 5%, transparent);
+    outline: 19px solid color-mix(in oklch, var(--gold) 5%, transparent);
+    transition:
+      box-shadow 0.4s ease,
+      background 0.4s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .verse-active {
+      transition: none;
     }
   }
 

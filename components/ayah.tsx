@@ -14,6 +14,8 @@ type AyahProps = {
   textUthmani?: string;
   translations?: AyahTranslation[];
   highlighted?: boolean;
+  active?: boolean;
+  onPlay?: () => void;
   articleRef?: (el: HTMLElement | null) => void;
 };
 
@@ -21,12 +23,16 @@ function Bar({ className }: { className?: string }) {
   return <div className={`skeleton-shimmer rounded-md ${className ?? ""}`} />;
 }
 
+const HEADER_HEIGHT_PX = 77;
+
 export function Ayah({
   verseNumber,
   loading = false,
   textUthmani = "",
   translations = [],
   highlighted = false,
+  active = false,
+  onPlay,
   articleRef,
 }: AyahProps) {
   return (
@@ -35,7 +41,9 @@ export function Ayah({
       data-page={versePage(verseNumber)}
       ref={articleRef}
       aria-busy={loading || undefined}
-      className={`${loading ? "" : "fade-up"} ${highlighted ? "verse-highlight" : ""} group relative flex flex-col gap-5 py-8 border-b border-border/40 last:border-0`}
+      aria-current={active ? "true" : undefined}
+      style={{ scrollMarginTop: HEADER_HEIGHT_PX }}
+      className={`ayah-cv ${loading ? "" : "fade-up"} ${highlighted ? "verse-active" : ""} ${active ? "verse-active" : ""} group relative flex flex-col gap-5 py-8 border-b border-border/40 last:border-0`}
     >
       {/* Verse number medallion */}
       <div className="flex items-center gap-3">
@@ -48,6 +56,8 @@ export function Ayah({
           <VerseActions
             arabic={textUthmani}
             translations={translations.map((t) => stripHtmlTags(t.text))}
+            onPlay={onPlay}
+            active={active}
           />
         )}
       </div>

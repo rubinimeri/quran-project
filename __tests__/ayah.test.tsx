@@ -82,6 +82,36 @@ describe("Ayah", () => {
     expect(arabic.style.fontFamily).toContain("--font-quran");
   });
 
+  it("marks the active (currently reciting) verse", () => {
+    const { container } = render(
+      <Ayah
+        verseNumber={1}
+        textUthmani="بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+        translations={mockTranslations}
+        active
+      />,
+    );
+    const article = container.querySelector("article");
+    expect(article).toHaveClass("verse-active");
+    expect(article).toHaveAttribute("aria-current", "true");
+  });
+
+  it("defers off-screen rendering of loading skeletons", () => {
+    const { container } = render(<Ayah verseNumber={1} loading />);
+    expect(container.querySelector("article")).toHaveClass("ayah-cv");
+  });
+
+  it("defers off-screen rendering of loaded verses too", () => {
+    const { container } = render(
+      <Ayah
+        verseNumber={1}
+        textUthmani="بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+        translations={mockTranslations}
+      />,
+    );
+    expect(container.querySelector("article")).toHaveClass("ayah-cv");
+  });
+
   it("renders the second translation text", () => {
     render(
       <Ayah

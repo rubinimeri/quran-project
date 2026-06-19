@@ -10,6 +10,7 @@ import {
 
 import { Ayah } from "./ayah";
 import { fetchVerses, versePage } from "@/lib/verses";
+import { useRecitation } from "@/components/recitation-context";
 import { Verse } from "@quranjs/api";
 
 // useLayoutEffect warns during SSR; fall back to useEffect on the server.
@@ -34,6 +35,11 @@ export function AyahList({
   const [highlightedVerse, setHighlightedVerse] = useState<number | undefined>(
     startingVerse,
   );
+
+  const { currentVerse, requestVerse } = useRecitation();
+  // True while we should keep the reciting ayah centred; a manual scroll turns
+  // it off until recitation advances to the next ayah.
+  const followingRecitation = useRef(false);
 
   const loadedPages = useRef<Set<number>>(new Set());
   const loadingPages = useRef<Set<number>>(new Set());
@@ -115,7 +121,7 @@ export function AyahList({
     const el = document.getElementById(`verse-${startingVerse}`);
     if (!el) return;
     hasScrolledToTarget.current = true;
-    el.scrollIntoView({ block: "center" });
+    el.scrollIntoView({ block: "start" });
     anchorTop.current = el.getBoundingClientRect().top;
     isAnchoring.current = true;
 
@@ -153,6 +159,48 @@ export function AyahList({
     if (delta !== 0) window.scrollBy(0, delta);
   }, [versesByNumber, startingVerse]);
 
+  // When recitation moves to a new ayah, re-enable following and make sure its
+  // page (and the next) are loaded so the verse is mounted before we scroll.
+  useEffect(() => {
+    if (currentVerse === undefined) return;
+    followingRecitation.current = true;
+    const frame = requestAnimationFrame(() => {
+      loadPage(versePage(currentVerse));
+      loadPage(versePage(currentVerse + 1));
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [currentVerse, loadPage]);
+
+  // Centre the reciting ayah once it's mounted — but only while following.
+  useEffect(() => {
+    if (currentVerse === undefined || !followingRecitation.current) return;
+    if (!versesByNumber.has(currentVerse)) return;
+    const el = document.getElementById(`verse-${currentVerse}`);
+    if (!el) return;
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    el.scrollIntoView({
+      behavior: prefersReduced ? "auto" : "smooth",
+      block: "start",
+    });
+  }, [currentVerse, versesByNumber]);
+
+  // A manual scroll stops the page from chasing the reciter until the next ayah.
+  useEffect(() => {
+    const release = () => {
+      followingRecitation.current = false;
+    };
+    window.addEventListener("wheel", release, { passive: true });
+    window.addEventListener("touchmove", release, { passive: true });
+    window.addEventListener("keydown", release);
+    return () => {
+      window.removeEventListener("wheel", release);
+      window.removeEventListener("touchmove", release);
+      window.removeEventListener("keydown", release);
+    };
+  }, []);
+
   if (error) {
     return (
       <section className="mt-6 flex justify-center py-12">
@@ -181,6 +229,8 @@ export function AyahList({
             verseNumber={verseNumber}
             textUthmani={verse.textUthmani ?? ""}
             highlighted={verseNumber === highlightedVerse}
+            active={verseNumber === currentVerse}
+            onPlay={() => requestVerse(verseNumber)}
             articleRef={articleRef}
             translations={
               verse.translations?.map((t) => ({
