@@ -249,6 +249,7 @@ export function AyahList({
 
           return verse ? (
             <Ayah
+              className="px-4"
               key={verseNumber}
               verseNumber={verseNumber}
               textUthmani={verse.textUthmani ?? ""}

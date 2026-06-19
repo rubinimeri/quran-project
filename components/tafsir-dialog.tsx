@@ -138,6 +138,7 @@ export function TafsirDialog({
 
           {verseLoaded ? (
             <Ayah
+              className="px-6"
               asHeader
               verseNumber={verseNumber}
               textUthmani={textUthmani}

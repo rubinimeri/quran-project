@@ -269,7 +269,7 @@ export function AudioPlayer({
             </div>
 
             {/* Label */}
-            <div className="flex flex-col min-w-0 shrink-0">
+            <div className="hidden sm:flex flex-col min-w-0 shrink-0">
               <span className="text-xs font-medium text-foreground truncate">
                 {surahName}
               </span>

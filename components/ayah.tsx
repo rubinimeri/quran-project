@@ -20,6 +20,7 @@ type AyahProps = {
   onPlay?: () => void;
   onOpenTafsir?: () => void;
   articleRef?: (el: HTMLElement | null) => void;
+  className?: string;
   /**
    * Render as the header inside the tafsir dialog: drop the list-only id /
    * scroll wiring and hide the verse actions (play, copy, tafsir trigger).
@@ -44,6 +45,7 @@ export function Ayah({
   onOpenTafsir,
   articleRef,
   asHeader = false,
+  className,
 }: AyahProps) {
   return (
     <article
@@ -53,10 +55,10 @@ export function Ayah({
       aria-busy={loading || undefined}
       aria-current={!asHeader && active ? "true" : undefined}
       style={asHeader ? undefined : { scrollMarginTop: HEADER_HEIGHT_PX }}
-      className={`ayah-cv px-6 rounded-4xl ${loading ? "" : "fade-up"} ${!asHeader && highlighted ? "verse-active" : ""} ${!asHeader && active ? "verse-active" : ""} group relative flex flex-col gap-5 ${asHeader ? "pb-6" : "py-8 border-b border-border/40 last:border-0"}`}
+      className={`${className} ayah-cv rounded-4xl ${loading ? "" : "fade-up"} ${!asHeader && highlighted ? "verse-active" : ""} ${!asHeader && active ? "verse-active" : ""} group relative flex flex-col gap-5 ${asHeader ? "pb-6" : "py-8 border-b border-border/40 last:border-0"}`}
     >
       {/* Verse number medallion */}
-      <div className="flex items-center gap-3">
+      <div className={`${loading ? "px-4" : "px-0"} flex items-center gap-3`}>
         <div className="flex items-center justify-center w-8 h-8 rounded-full border border-gold/40 text-gold text-xs font-semibold shrink-0">
           {verseNumber}
         </div>
@@ -75,13 +77,13 @@ export function Ayah({
       {loading ? (
         <>
           {/* Arabic block — right-aligned, given the most room */}
-          <div className="flex flex-col items-end gap-3">
+          <div className="px-4 flex flex-col items-end gap-3">
             <Bar className="h-7 w-3/4" />
             <Bar className="h-7 w-5/6" />
           </div>
 
           {/* Translation — eyebrow label + lines of varied width */}
-          <div className="flex flex-col gap-3">
+          <div className="px-4 flex flex-col gap-3">
             <Bar className="h-3 w-24" />
             <Bar className="h-4 w-full" />
             <Bar className="h-4 w-11/12" />
