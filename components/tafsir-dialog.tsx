@@ -136,20 +136,18 @@ export function TafsirDialog({
             </div>
           </div>
 
-          <div className="px-6">
-            {verseLoaded ? (
-              <Ayah
-                asHeader
-                verseNumber={verseNumber}
-                textUthmani={textUthmani}
-                translations={translations}
-                onPlay={onPlay}
-                active={active}
-              />
-            ) : (
-              <Ayah asHeader loading verseNumber={verseNumber} />
-            )}
-          </div>
+          {verseLoaded ? (
+            <Ayah
+              asHeader
+              verseNumber={verseNumber}
+              textUthmani={textUthmani}
+              translations={translations}
+              onPlay={onPlay}
+              active={active}
+            />
+          ) : (
+            <Ayah asHeader loading verseNumber={verseNumber} />
+          )}
 
           {/* Source tabs */}
           <div className="shrink-0 px-6 pt-4 overflow-x-auto">
