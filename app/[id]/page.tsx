@@ -4,7 +4,6 @@ import { SurahHeader } from "@/components/surah-header";
 import { SurahNav } from "@/components/surah-nav";
 import { AudioPlayer } from "@/components/audio-player";
 import { AyahList } from "@/components/ayah-list";
-import { RecitationProvider } from "@/components/recitation-context";
 import { Suspense } from "react";
 
 export default async function SurahPage({
@@ -49,42 +48,40 @@ export default async function SurahPage({
   }
 
   return (
-    <RecitationProvider>
-      <main className="surah-glow min-h-screen pb-24">
-        <div className="max-w-5xl mx-auto ">
-          <SurahNav currentId={numericId} />
+    <main className="surah-glow min-h-screen pb-24">
+      <div className="max-w-5xl mx-auto ">
+        <SurahNav currentId={numericId} />
 
-          <SurahHeader
-            id={numericId}
-            nameSimple={chapter.nameSimple}
-            nameArabic={chapter.nameArabic}
-            translatedName={chapter.translatedName.name}
-            versesCount={chapter.versesCount}
-            revelationPlace={chapter.revelationPlace}
-            bismillahPre={chapter.bismillahPre}
-          />
-
-          <Suspense>
-            <AyahList
-              key={`${numericId}-${startingVerse ?? ""}`}
-              chapter={chapterId}
-              versesCount={chapter.versesCount}
-              surahName={chapter.nameSimple}
-              startingVerse={startingVerse}
-            />
-          </Suspense>
-
-          <SurahNav currentId={numericId} />
-        </div>
+        <SurahHeader
+          id={numericId}
+          nameSimple={chapter.nameSimple}
+          nameArabic={chapter.nameArabic}
+          translatedName={chapter.translatedName.name}
+          versesCount={chapter.versesCount}
+          revelationPlace={chapter.revelationPlace}
+          bismillahPre={chapter.bismillahPre}
+        />
 
         <Suspense>
-          <AudioPlayer
+          <AyahList
+            key={`${numericId}-${startingVerse ?? ""}`}
             chapter={chapterId}
             versesCount={chapter.versesCount}
             surahName={chapter.nameSimple}
+            startingVerse={startingVerse}
           />
         </Suspense>
-      </main>
-    </RecitationProvider>
+
+        <SurahNav currentId={numericId} />
+      </div>
+
+      <Suspense>
+        <AudioPlayer
+          chapter={chapterId}
+          versesCount={chapter.versesCount}
+          surahName={chapter.nameSimple}
+        />
+      </Suspense>
+    </main>
   );
 }

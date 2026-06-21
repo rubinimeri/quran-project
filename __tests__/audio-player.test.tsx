@@ -6,10 +6,7 @@ import "@testing-library/jest-dom";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
 import { AudioPlayer } from "@/components/audio-player";
-import {
-  RecitationProvider,
-  useRecitation,
-} from "@/components/recitation-context";
+import { useRecitationStore } from "@/stores/recitation-store";
 import { fetchVerseAudio } from "../lib/audio";
 
 jest.mock("../lib/audio", () => ({
@@ -26,23 +23,23 @@ const AUDIO_FILES = [
 ];
 
 function CurrentVerse() {
-  const { currentVerse } = useRecitation();
+  const currentVerse = useRecitationStore((s) => s.currentVerse);
   return <div data-testid="current-verse">{currentVerse ?? "none"}</div>;
 }
 
 // Mimics tapping an ayah's play button, which is what reveals the player.
 function PlayVerseButton({ verse = 1 }: { verse?: number }) {
-  const { requestVerse } = useRecitation();
+  const requestVerse = useRecitationStore((s) => s.requestVerse);
   return <button onClick={() => requestVerse(verse)}>play-verse</button>;
 }
 
 function renderPlayer() {
   return render(
-    <RecitationProvider>
+    <>
       <CurrentVerse />
       <PlayVerseButton />
       <AudioPlayer chapter="1" versesCount={3} surahName="Al-Fatihah" />
-    </RecitationProvider>,
+    </>,
   );
 }
 
@@ -62,6 +59,11 @@ beforeAll(() => {
 
 beforeEach(() => {
   mockFetch.mockResolvedValue(AUDIO_FILES);
+  // The store is a singleton; reset shared state between tests.
+  useRecitationStore.setState({
+    currentVerse: undefined,
+    requestedVerse: undefined,
+  });
 });
 
 describe("AudioPlayer", () => {

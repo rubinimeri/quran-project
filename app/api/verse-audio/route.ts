@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
     } while (page <= totalPages);
 
     audioFiles.sort((a, b) => a.verseNumber - b.verseNumber);
+    console.log(audioFiles[0]);
 
     return NextResponse.json({ result: { audioFiles } });
   } catch {
