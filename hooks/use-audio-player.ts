@@ -1,29 +1,34 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useStore } from "zustand";
-
+import { useCallback, useEffect, useRef } from "react";
 import { fetchVerseAudio } from "@/lib/audio";
 import { useRecitationStore } from "@/stores/recitation-store";
-import { createAudioPlayerStore } from "@/stores/audio-player-store";
+import { useAudioPlayerStore } from "@/stores/audio-player-store";
 
 type UseAudioPlayerParams = {
   chapter: string | number;
 };
 
 export function useAudioPlayer({ chapter }: UseAudioPlayerParams) {
-  // Per-instance store: the player persists across surah navigation (it isn't
-  // remounted), so playback state lives for the component's lifetime.
-  const [store] = useState(createAudioPlayerStore);
-
-  const audioFiles = useStore(store, (s) => s.audioFiles);
-  const ready = useStore(store, (s) => s.ready);
-  const loadError = useStore(store, (s) => s.loadError);
-  const index = useStore(store, (s) => s.index);
-  const playing = useStore(store, (s) => s.playing);
-  const started = useStore(store, (s) => s.started);
-  const current = useStore(store, (s) => s.current);
-  const duration = useStore(store, (s) => s.duration);
+  const {
+    audioFiles,
+    ready,
+    loadError,
+    index,
+    playing,
+    started,
+    current,
+    duration,
+    failAudio,
+    advance,
+    loadAudio,
+    pause,
+    play,
+    setCurrent,
+    setDuration,
+    startAt,
+    stop: stateStop,
+  } = useAudioPlayerStore();
 
   const setCurrentVerse = useRecitationStore((s) => s.setCurrentVerse);
   const requestedVerse = useRecitationStore((s) => s.requestedVerse);
@@ -37,15 +42,15 @@ export function useAudioPlayer({ chapter }: UseAudioPlayerParams) {
     fetchVerseAudio(chapter)
       .then((files) => {
         if (cancelled) return;
-        store.getState().loadAudio(files);
+        loadAudio(files);
       })
       .catch(() => {
-        if (!cancelled) store.getState().failAudio();
+        if (!cancelled) failAudio();
       });
     return () => {
       cancelled = true;
     };
-  }, [chapter, store]);
+  }, [chapter, failAudio, loadAudio]);
 
   // Clear the shared highlight when the player unmounts (e.g. navigating away).
   useEffect(() => () => setCurrentVerse(undefined), [setCurrentVerse]);
@@ -55,7 +60,6 @@ export function useAudioPlayer({ chapter }: UseAudioPlayerParams) {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    const { setCurrent, setDuration, advance } = store.getState();
 
     const onTimeUpdate = () => setCurrent(audio.currentTime);
     const onLoaded = () => {
@@ -73,7 +77,7 @@ export function useAudioPlayer({ chapter }: UseAudioPlayerParams) {
       audio.removeEventListener("durationchange", onLoaded);
       audio.removeEventListener("ended", onEnded);
     };
-  }, [store]);
+  }, [advance, setCurrent, setDuration]);
 
   // Drive the element: whenever we're playing (or advance while playing), start
   // the current ayah's audio. Pausing is handled imperatively in togglePlay.
@@ -111,7 +115,6 @@ export function useAudioPlayer({ chapter }: UseAudioPlayerParams) {
     const frame = requestAnimationFrame(() => {
       requestVerse(undefined);
       if (target < 0) return;
-      const { index, startAt } = store.getState();
       startAt(target);
       // Same ayah already loaded: the drive effect won't re-fire, so replay it.
       if (target === index) {
@@ -123,11 +126,10 @@ export function useAudioPlayer({ chapter }: UseAudioPlayerParams) {
       }
     });
     return () => cancelAnimationFrame(frame);
-  }, [requestedVerse, audioFiles, requestVerse, store]);
+  }, [requestedVerse, audioFiles, requestVerse, index, startAt]);
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
-    const { ready, playing, play, pause } = store.getState();
     if (!audio || !ready) return;
     if (playing) {
       audio.pause();
@@ -136,7 +138,7 @@ export function useAudioPlayer({ chapter }: UseAudioPlayerParams) {
       play();
       audio.play().catch(() => {});
     }
-  }, [store]);
+  }, [pause, play, playing, ready]);
 
   const stop = useCallback(() => {
     const audio = audioRef.current;
@@ -144,17 +146,16 @@ export function useAudioPlayer({ chapter }: UseAudioPlayerParams) {
       audio.pause();
       audio.currentTime = 0;
     }
-    store.getState().stop();
-  }, [store]);
+    stateStop();
+  }, [stateStop]);
 
   const skip = useCallback(
     (delta: number) => {
-      const { index, audioFiles, startAt } = store.getState();
       const target = index + delta;
       if (target < 0 || target >= audioFiles.length) return;
       startAt(target);
     },
-    [store],
+    [audioFiles.length, index, startAt],
   );
 
   const handleSeek = useCallback(
@@ -164,16 +165,16 @@ export function useAudioPlayer({ chapter }: UseAudioPlayerParams) {
       audio.pause();
       const next = typeof value === "number" ? value : value[0];
       audio.currentTime = next;
-      store.getState().setCurrent(next);
+      setCurrent(next);
     },
-    [store],
+    [setCurrent],
   );
 
   const resumeAfterSeek = useCallback(() => {
     const audio = audioRef.current;
-    if (!audio || !store.getState().playing) return;
+    if (!audio || playing) return;
     audio.play().catch(() => {});
-  }, [store]);
+  }, [playing]);
 
   return {
     audioRef,

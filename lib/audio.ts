@@ -1,4 +1,5 @@
 import { GetVerseAudioResult } from "@/app/api/verse-audio/route";
+import { Segment } from "@quranjs/api";
 
 const API_URL = "/api/verse-audio";
 
@@ -8,7 +9,13 @@ export const RECITATION_ID = "7";
 export type VerseAudio = {
   verseNumber: number;
   audioUrl: string;
+  segments?: Segment[];
 };
+
+export function currentWordIndex(
+  currentMs: number,
+  [wordIndex, , startMs, endMs]: Segment,
+) {}
 
 export async function fetchVerseAudio(
   chapter: string | number,

@@ -32,13 +32,17 @@ export async function GET(request: NextRequest) {
         await quranClient.content.v4.audio.verseRecitation.byChapter(
           chapter as ChapterId,
           recitation,
-          { perPage: PER_PAGE, page },
+          { perPage: PER_PAGE, page, fields: { segments: true } },
         );
 
       for (const file of files) {
         const verseNumber = Number(file.verseKey.split(":")[1]);
         if (verseNumber) {
-          audioFiles.push({ verseNumber, audioUrl: file.audioUrl });
+          audioFiles.push({
+            verseNumber,
+            audioUrl: file.audioUrl,
+            segments: file.segments,
+          });
         }
       }
 

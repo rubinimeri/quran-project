@@ -164,6 +164,22 @@ describe("Ayah", () => {
     expect(article).not.toHaveAttribute("aria-current");
   });
 
+  it("renders word-by-word Arabic when words are provided", () => {
+    render(
+      <Ayah
+        verseNumber={1}
+        words={[
+          { position: 1, textUthmani: "بِسْمِ" },
+          { position: 2, textUthmani: "ٱللَّهِ" },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ] as any}
+        translations={mockTranslations}
+      />,
+    );
+    expect(screen.getByText(/بِسْمِ/)).toBeInTheDocument();
+    expect(screen.getByText(/ٱللَّهِ/)).toBeInTheDocument();
+  });
+
   it("renders the second translation text", () => {
     render(
       <Ayah

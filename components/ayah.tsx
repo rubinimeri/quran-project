@@ -1,9 +1,13 @@
+"use client";
+
+import { memo } from "react";
 import { stripHtmlTags } from "@/lib/format";
 import { Separator } from "@/components/ui/separator";
 import { versePage } from "@/lib/verses";
 import { VerseActions } from "./verse-actions";
-import { Button } from "./ui/button";
 import { IconBook } from "@tabler/icons-react";
+import { useAudioPlayerStore } from "@/stores/audio-player-store";
+import { Segment, Word } from "@quranjs/api";
 
 type AyahTranslation = {
   text: string;
@@ -17,6 +21,8 @@ type AyahProps = {
   translations?: AyahTranslation[];
   highlighted?: boolean;
   active?: boolean;
+  words?: Word[];
+  segments?: Segment[];
   onPlay?: () => void;
   onOpenTafsir?: () => void;
   articleRef?: (el: HTMLElement | null) => void;
@@ -34,19 +40,79 @@ function Bar({ className }: { className?: string }) {
 
 const HEADER_HEIGHT_PX = 77;
 
-export function Ayah({
+function WordSpan({
+  text,
+  highlighted = false,
+}: {
+  text?: string;
+  highlighted?: boolean;
+}) {
+  return (
+    <span
+      className={`cursor-pointer ${highlighted ? "text-gold" : "hover:text-gold"}`}
+    >
+      {text + " "}
+    </span>
+  );
+}
+
+/**
+ * Word-by-word Arabic for the verse currently being recited. Mounted only for
+ * the active ayah, so the high-frequency `current` playback-time subscription
+ * re-renders a single verse on each audio tick rather than every ayah in the
+ * surah.
+ */
+function ActiveVerseWords({
+  words,
+  segments,
+}: {
+  words: Word[];
+  segments: Segment[];
+}) {
+  const currentMs = useAudioPlayerStore((state) => state.current) * 1000;
+
+  return (
+    <>
+      {words.map((word, index) => {
+        const segment: Segment | undefined = segments[index];
+        const highlighted =
+          segment !== undefined &&
+          currentMs >= segment[2] &&
+          currentMs <= segment[3];
+        return (
+          <WordSpan key={index} text={word.textUthmani} highlighted={highlighted} />
+        );
+      })}
+    </>
+  );
+}
+
+function AyahBase({
   verseNumber,
   loading = false,
   textUthmani = "",
   translations = [],
   highlighted = false,
   active = false,
+  words,
+  segments,
   onPlay,
   onOpenTafsir,
   articleRef,
   asHeader = false,
   className,
 }: AyahProps) {
+  let arabic;
+  if (active && words && segments) {
+    arabic = <ActiveVerseWords words={words} segments={segments} />;
+  } else if (words) {
+    arabic = words.map((word, index) => (
+      <WordSpan key={index} text={word.textUthmani} />
+    ));
+  } else {
+    arabic = textUthmani;
+  }
+
   return (
     <article
       id={asHeader ? undefined : `verse-${verseNumber}`}
@@ -99,7 +165,11 @@ export function Ayah({
             lang="ar"
             dir="rtl"
           >
-            {textUthmani}
+            {/* 
+              We need the currentMs of the player, and then compare that currentMs to startMs & endMs
+              of the segments, if within those two values then highlight the corresponding word
+              */}
+            {arabic}
           </p>
 
           {/* Translations */}
@@ -136,3 +206,5 @@ export function Ayah({
     </article>
   );
 }
+
+export const Ayah = memo(AyahBase);

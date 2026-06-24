@@ -1,4 +1,5 @@
 import { createStore } from "zustand/vanilla";
+import { create } from "zustand";
 
 import { type VerseAudio } from "@/lib/audio";
 
@@ -29,6 +30,42 @@ type AudioPlayerState = {
   stop: () => void;
 };
 
+export const useAudioPlayerStore = create<AudioPlayerState>((set, get) => ({
+  audioFiles: [],
+  ready: false,
+  loadError: false,
+  index: 0,
+  playing: false,
+  started: false,
+  current: 0,
+  duration: 0,
+
+  loadAudio: (files) =>
+    set({
+      audioFiles: files,
+      ready: files.length > 0,
+      loadError: files.length === 0,
+    }),
+  failAudio: () => set({ loadError: true }),
+  setCurrent: (current) => set({ current }),
+  setDuration: (duration) => set({ duration }),
+  play: () => set({ started: true, playing: true }),
+  pause: () => set({ playing: false }),
+  startAt: (index) => set({ started: true, playing: true, current: 0, index }),
+
+  advance: () => {
+    const { index, audioFiles } = get();
+    const next = index + 1;
+    if (next < audioFiles.length) {
+      set({ current: 0, index: next });
+    } else {
+      set({ playing: false, started: false, index: 0 });
+    }
+  },
+
+  stop: () => set({ playing: false, started: false, current: 0, index: 0 }),
+}));
+
 export function createAudioPlayerStore() {
   return createStore<AudioPlayerState>((set, get) => ({
     audioFiles: [],
@@ -51,7 +88,8 @@ export function createAudioPlayerStore() {
     setDuration: (duration) => set({ duration }),
     play: () => set({ started: true, playing: true }),
     pause: () => set({ playing: false }),
-    startAt: (index) => set({ started: true, playing: true, current: 0, index }),
+    startAt: (index) =>
+      set({ started: true, playing: true, current: 0, index }),
 
     advance: () => {
       const { index, audioFiles } = get();

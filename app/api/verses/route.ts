@@ -30,6 +30,10 @@ export async function GET(request: NextRequest) {
         translationFields: { resourceName: true },
         translations: [20, 57],
         perPage: VERSES_PER_PAGE,
+        words: true,
+        wordFields: {
+          textUthmani: true,
+        },
       },
     );
 

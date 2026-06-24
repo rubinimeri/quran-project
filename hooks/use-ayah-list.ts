@@ -56,16 +56,38 @@ export function useAyahList({
   const anchorTop = useRef<number | null>(null);
   const isAnchoring = useRef(false);
 
-  // Ref callback for a verse's article element. Placeholders register with the
-  // observer so their page loads as they near the viewport; once the real verse
-  // is in place it stops being observed.
-  const registerArticle = useCallback(
-    (hasVerse: boolean) => (el: HTMLElement | null) => {
-      if (!el) return;
-      if (hasVerse) observerRef.current?.unobserve(el);
-      else observerRef.current?.observe(el);
+  // Ref callbacks for a verse's article element. Stable identities (one for
+  // placeholders, one for loaded verses) so React doesn't detach/re-observe
+  // every article on each list render — passing a fresh closure per verse made
+  // the IntersectionObserver re-measure the whole list on any state change.
+  // Placeholders register so their page loads as they near the viewport; once
+  // the real verse is in place it stops being observed.
+  const observeArticle = useCallback((el: HTMLElement | null) => {
+    if (el) observerRef.current?.observe(el);
+  }, []);
+  const unobserveArticle = useCallback((el: HTMLElement | null) => {
+    if (el) observerRef.current?.unobserve(el);
+  }, []);
+
+  // Stable per-verse play/tafsir handlers, cached by verse number, so memoized
+  // Ayahs don't re-render just because the list rebuilt their callbacks.
+  // requestVerse/openTafsir are stable zustand actions, safe to close over once.
+  const handlerCache = useRef(
+    new Map<number, { onPlay: () => void; onOpenTafsir: () => void }>(),
+  );
+  const getVerseHandlers = useCallback(
+    (verseNumber: number) => {
+      let handlers = handlerCache.current.get(verseNumber);
+      if (!handlers) {
+        handlers = {
+          onPlay: () => requestVerse(verseNumber),
+          onOpenTafsir: () => openTafsir(verseNumber),
+        };
+        handlerCache.current.set(verseNumber, handlers);
+      }
+      return handlers;
     },
-    [],
+    [requestVerse, openTafsir],
   );
 
   // Load the starting page on mount. The load is deferred to after the first
@@ -204,7 +226,9 @@ export function useAyahList({
     currentVerse,
     requestVerse,
     openTafsir,
-    registerArticle,
+    observeArticle,
+    unobserveArticle,
+    getVerseHandlers,
     activeVerse,
   };
 }
