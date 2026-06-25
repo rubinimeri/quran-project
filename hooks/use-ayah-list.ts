@@ -56,15 +56,46 @@ export function useAyahList({
   const anchorTop = useRef<number | null>(null);
   const isAnchoring = useRef(false);
 
+  // Keep the latest loadPage reachable from the long-lived observer without
+  // rebuilding (and re-attaching) it whenever loadPage's identity changes.
+  const loadPageRef = useRef(loadPage);
+  useEffect(() => {
+    loadPageRef.current = loadPage;
+  }, [loadPage]);
+
+  // The observer is created lazily, by the first ref callback that needs it —
+  // not in an effect. Refs run during commit but effects run *after*, so an
+  // effect-built observer wouldn't exist yet when articles mount and register,
+  // and (now that the ref callbacks are stable and don't re-run) every element
+  // would be missed. Lazy creation guarantees it's ready the moment it's used.
+  const getObserver = useCallback(() => {
+    if (!observerRef.current) {
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const page = Number((entry.target as HTMLElement).dataset.page);
+            if (page) loadPageRef.current(page);
+          }
+        },
+        { rootMargin: "600px 0px 600px 0px" },
+      );
+    }
+    return observerRef.current;
+  }, []);
+
   // Ref callbacks for a verse's article element. Stable identities (one for
   // placeholders, one for loaded verses) so React doesn't detach/re-observe
   // every article on each list render — passing a fresh closure per verse made
   // the IntersectionObserver re-measure the whole list on any state change.
   // Placeholders register so their page loads as they near the viewport; once
   // the real verse is in place it stops being observed.
-  const observeArticle = useCallback((el: HTMLElement | null) => {
-    if (el) observerRef.current?.observe(el);
-  }, []);
+  const observeArticle = useCallback(
+    (el: HTMLElement | null) => {
+      if (el) getObserver().observe(el);
+    },
+    [getObserver],
+  );
   const unobserveArticle = useCallback((el: HTMLElement | null) => {
     if (el) observerRef.current?.unobserve(el);
   }, []);
@@ -101,25 +132,14 @@ export function useAyahList({
     return () => cancelAnimationFrame(frame);
   }, [startingVerse, loadPage]);
 
-  // One observer for the whole list; placeholders register themselves via the
-  // callback ref above and trigger their page to load as they near the viewport.
+  // The observer is built lazily above (getObserver); this only tears it down
+  // when the list unmounts so we don't leak one per surah visit.
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          const page = Number((entry.target as HTMLElement).dataset.page);
-          if (page) loadPage(page);
-        }
-      },
-      { rootMargin: "600px 0px 600px 0px" },
-    );
-    observerRef.current = observer;
     return () => {
-      observer.disconnect();
+      observerRef.current?.disconnect();
       observerRef.current = null;
     };
-  }, [loadPage]);
+  }, []);
 
   // After the starting page's verses are in place, jump to + highlight the
   // target. Instant (not smooth) so we can record its landed offset and pin it.

@@ -4,7 +4,7 @@ import { GetVersesResult } from "@/app/api/verses/route";
 
 const API_URL = "/api/verses";
 
-export const VERSES_PER_PAGE = 50;
+export const VERSES_PER_PAGE = 10;
 
 export function versePage(verseNumber: number): number {
   return Math.max(1, Math.ceil(verseNumber / VERSES_PER_PAGE));

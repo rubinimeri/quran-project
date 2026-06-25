@@ -9,7 +9,7 @@ export type GetVerseAudioResult = {
   error?: string;
 };
 
-const PER_PAGE = 50;
+const PER_PAGE = 10;
 
 export async function GET(request: NextRequest) {
   const chapter = request.nextUrl.searchParams.get("chapter")?.trim();
@@ -51,7 +51,6 @@ export async function GET(request: NextRequest) {
     } while (page <= totalPages);
 
     audioFiles.sort((a, b) => a.verseNumber - b.verseNumber);
-    console.log(audioFiles[0]);
 
     return NextResponse.json({ result: { audioFiles } });
   } catch {
