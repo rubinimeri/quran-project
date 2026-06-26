@@ -1,9 +1,8 @@
 "use client";
 
-import { memo } from "react";
+import { Fragment, memo, useEffect, useRef, useState } from "react";
 import { stripHtmlTags } from "@/lib/format";
 import { Separator } from "@/components/ui/separator";
-import { versePage } from "@/lib/verses";
 import { VerseActions } from "./verse-actions";
 import { IconBook } from "@tabler/icons-react";
 import { useAudioPlayerStore } from "@/stores/audio-player-store";
@@ -25,11 +24,10 @@ type AyahProps = {
   segments?: Segment[];
   onPlay?: () => void;
   onOpenTafsir?: () => void;
-  articleRef?: (el: HTMLElement | null) => void;
   className?: string;
   /**
-   * Render as the header inside the tafsir dialog: drop the list-only id /
-   * scroll wiring and hide the verse actions (play, copy, tafsir trigger).
+   * Render as the header inside the tafsir dialog: hide the verse actions
+   * (play, copy, tafsir trigger) and the active/highlight states.
    */
   asHeader?: boolean;
 };
@@ -38,17 +36,20 @@ function Bar({ className }: { className?: string }) {
   return <div className={`skeleton-shimmer rounded-md ${className ?? ""}`} />;
 }
 
-const HEADER_HEIGHT_PX = 77;
+const BASE_URL = "https://audio.qurancdn.com/";
 
 function WordSpan({
   text,
   highlighted = false,
+  handleWordClick,
 }: {
   text?: string;
   highlighted?: boolean;
+  handleWordClick?: () => void;
 }) {
   return (
     <span
+      onClick={() => (handleWordClick ? handleWordClick() : null)}
       className={`cursor-pointer ${highlighted ? "text-gold" : "hover:text-gold"}`}
     >
       {text + " "}
@@ -80,7 +81,11 @@ function ActiveVerseWords({
           currentMs >= segment[2] &&
           currentMs <= segment[3];
         return (
-          <WordSpan key={index} text={word.textUthmani} highlighted={highlighted} />
+          <WordSpan
+            key={index}
+            text={word.textUthmani}
+            highlighted={highlighted}
+          />
         );
       })}
     </>
@@ -98,16 +103,56 @@ function AyahBase({
   segments,
   onPlay,
   onOpenTafsir,
-  articleRef,
   asHeader = false,
   className,
 }: AyahProps) {
+  const [wordAudioUrl, setWordAudioUrl] = useState<string | undefined>(
+    undefined,
+  );
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !wordAudioUrl) return;
+
+    let cancelled = false;
+
+    console.log(wordAudioUrl);
+    const playAudio = async () => {
+      try {
+        await audio.play();
+      } catch (err: unknown) {
+        // Ignore interruptions caused by a newer load/play
+        if (!cancelled && err instanceof Error && err.name !== "AbortError") {
+          console.error("Audio playing blocked: ", err);
+        }
+      }
+    };
+
+    playAudio();
+
+    return () => {
+      cancelled = true;
+      audio.pause(); // stop the current one cleanly before the next effect run
+    };
+  }, [wordAudioUrl]);
+
+  function handleWordClick(url: string) {
+    setWordAudioUrl(url);
+  }
   let arabic;
   if (active && words && segments) {
     arabic = <ActiveVerseWords words={words} segments={segments} />;
   } else if (words) {
     arabic = words.map((word, index) => (
-      <WordSpan key={index} text={word.textUthmani} />
+      <Fragment key={index}>
+        <audio ref={audioRef} src={wordAudioUrl} preload="metadata" />
+        <WordSpan
+          key={index}
+          text={word.textUthmani}
+          handleWordClick={() => handleWordClick(BASE_URL + word.audioUrl)}
+        />
+      </Fragment>
     ));
   } else {
     arabic = textUthmani;
@@ -115,13 +160,9 @@ function AyahBase({
 
   return (
     <article
-      id={asHeader ? undefined : `verse-${verseNumber}`}
-      data-page={asHeader ? undefined : versePage(verseNumber)}
-      ref={asHeader ? undefined : articleRef}
       aria-busy={loading || undefined}
       aria-current={!asHeader && active ? "true" : undefined}
-      style={asHeader ? undefined : { scrollMarginTop: HEADER_HEIGHT_PX }}
-      className={`${className} ayah-cv rounded-4xl ${loading ? "" : "fade-up"} ${!asHeader && highlighted ? "verse-active" : ""} ${!asHeader && active ? "verse-active" : ""} group relative flex flex-col gap-5 ${asHeader ? "pb-6" : "py-8 border-b border-border/40 last:border-0"}`}
+      className={`${className} rounded-4xl ${!asHeader && highlighted ? "verse-active" : ""} ${!asHeader && active ? "verse-active" : ""} group relative flex flex-col gap-5 ${asHeader ? "pb-6" : "py-8 border-b border-border/40 last:border-0"}`}
     >
       {/* Verse number medallion */}
       <div className={`${loading ? "px-4" : "px-0"} flex items-center gap-3`}>

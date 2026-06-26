@@ -150,6 +150,15 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Virtuoso runs in useWindowScroll mode, so the document is the scroll
+     container. Virtuoso disables the browser's native scroll-anchoring on its
+     own scroller in element mode, but can't reach <html> in window mode — so we
+     turn it off here. Otherwise native anchoring and Virtuoso's own scroll
+     correction both react to items resizing above the viewport (skeleton -> real
+     ayah, font swap) and fight each other, which reads as upward-scroll flicker. */
+  html {
+    overflow-anchor: none;
+  }
 }
 
 @layer utilities {
@@ -244,16 +253,6 @@
       oklch(0.8 0.11 85 / 0.1) 50%,
       transparent 100%
     );
-  }
-
-  /* Off-screen ayahs reserve their space but skip layout, paint, and (for
-     skeletons) the infinite shimmer animation until they scroll near the
-     viewport — sparing long surahs hundreds of compositing/painting elements. */
-  .ayah-cv {
-    content-visibility: auto;
-    /* `auto` remembers each ayah's real height after its first render; the
-       ~400px fallback is the estimate for ayahs never yet rendered. */
-    contain-intrinsic-size: auto 400px;
   }
 
   @keyframes skeleton-sweep {

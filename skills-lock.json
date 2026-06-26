@@ -13,6 +13,12 @@
       "skillPath": "skills/soft-skill/SKILL.md",
       "computedHash": "7db385e4c5370e5a7fca9704a1361b056e4504ea6a03924bb86f33a4f00b5c73"
     },
+    "react-virtuoso": {
+      "source": "virtuoso-dev/skills",
+      "sourceType": "github",
+      "skillPath": "react-virtuoso/SKILL.md",
+      "computedHash": "8351afa04b55548a26b508d222a0a9388f1c68d2853d5ca41f29faad40cc93c2"
+    },
     "redesign-existing-projects": {
       "source": "Leonxlnx/taste-skill",
       "sourceType": "github",

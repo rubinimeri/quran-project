@@ -1,21 +1,17 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useStore } from "zustand";
+import type { ListRange, VirtuosoHandle } from "react-virtuoso";
 
 import { versePage } from "@/lib/verses";
 import { useRecitationStore } from "@/stores/recitation-store";
 import { createAyahListStore } from "@/stores/ayah-list-store";
 
-// useLayoutEffect warns during SSR; fall back to useEffect on the server.
-const useIsomorphicLayoutEffect =
-  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+// Virtuoso scrolls with the document (useWindowScroll), so a scrolled-to verse
+// lands at the very top of the viewport — under the sticky 56px (h-14) navbar.
+// Pull it down by the navbar height plus a little breathing room.
+const SCROLL_OFFSET = 77;
 
 type UseAyahListParams = {
   chapter: string | number;
@@ -48,57 +44,112 @@ export function useAyahList({
   // it off until recitation advances to the next ayah.
   const followingRecitation = useRef(false);
 
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const hasScrolledToTarget = useRef(false);
-  // While anchoring, keep the target verse pinned at the offset it landed on, so
-  // verses loading in above it (taller than their skeletons) don't push it away.
-  // Released the moment the user scrolls themselves.
-  const anchorTop = useRef<number | null>(null);
-  const isAnchoring = useRef(false);
+  // Virtuoso owns the scroll position; we drive programmatic scrolls (recitation
+  // following) through its handle.
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
+  const hasStartedHighlightTimer = useRef(false);
+  // True once the reader takes over with their own scroll, after which we stop
+  // re-pinning the deep-linked target onto its landing spot.
+  const hasUserScrolled = useRef(false);
 
-  // Keep the latest loadPage reachable from the long-lived observer without
-  // rebuilding (and re-attaching) it whenever loadPage's identity changes.
-  const loadPageRef = useRef(loadPage);
+  // Load the starting page on mount so the target verse's real content arrives
+  // (and the highlight timer can fire). Deferred to after first paint so the
+  // skeleton scaffold renders first. Virtuoso owns the initial scroll position
+  // via initialTopMostItemIndex, so we no longer scroll here.
   useEffect(() => {
-    loadPageRef.current = loadPage;
-  }, [loadPage]);
+    const page = startingVerse ? versePage(startingVerse) : 1;
+    const frame = requestAnimationFrame(() => loadPage(page));
+    return () => cancelAnimationFrame(frame);
+  }, [startingVerse, loadPage]);
 
-  // The observer is created lazily, by the first ref callback that needs it —
-  // not in an effect. Refs run during commit but effects run *after*, so an
-  // effect-built observer wouldn't exist yet when articles mount and register,
-  // and (now that the ref callbacks are stable and don't re-run) every element
-  // would be missed. Lazy creation guarantees it's ready the moment it's used.
-  const getObserver = useCallback(() => {
-    if (!observerRef.current) {
-      observerRef.current = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (!entry.isIntersecting) continue;
-            const page = Number((entry.target as HTMLElement).dataset.page);
-            if (page) loadPageRef.current(page);
-          }
-        },
-        { rootMargin: "600px 0px 600px 0px" },
-      );
-    }
-    return observerRef.current;
-  }, []);
-
-  // Ref callbacks for a verse's article element. Stable identities (one for
-  // placeholders, one for loaded verses) so React doesn't detach/re-observe
-  // every article on each list render — passing a fresh closure per verse made
-  // the IntersectionObserver re-measure the whole list on any state change.
-  // Placeholders register so their page loads as they near the viewport; once
-  // the real verse is in place it stops being observed.
-  const observeArticle = useCallback(
-    (el: HTMLElement | null) => {
-      if (el) getObserver().observe(el);
+  // Fetch the pages covering Virtuoso's rendered range, plus one page on either
+  // side. The neighbour prefetch is what keeps reverse scrolling smooth: the page
+  // just above the viewport is already loaded, so items enter the top overscan at
+  // their real height instead of swapping skeleton -> taller real content above
+  // the viewport (which would force Virtuoso to retro-correct the scroll = jank).
+  // loadPage is idempotent, so calling it on every range change is cheap.
+  const onRangeChanged = useCallback(
+    ({ startIndex, endIndex }: ListRange) => {
+      const maxPage = versePage(versesCount);
+      const first = Math.max(1, versePage(startIndex + 1) - 1);
+      const last = Math.min(maxPage, versePage(endIndex + 1) + 1);
+      for (let page = first; page <= last; page++) loadPage(page);
     },
-    [getObserver],
+    [loadPage, versesCount],
   );
-  const unobserveArticle = useCallback((el: HTMLElement | null) => {
-    if (el) observerRef.current?.unobserve(el);
-  }, []);
+
+  // Where Virtuoso starts: at the target verse (offset clear of the navbar) or
+  // the top. Built here so SCROLL_OFFSET has a single home.
+  const initialTopMostItemIndex = startingVerse
+    ? {
+        index: startingVerse - 1,
+        align: "start" as const,
+        offset: -SCROLL_OFFSET,
+      }
+    : 0;
+
+  // Once the target verse's real content is in place, start the highlight-clear
+  // timer. The highlight itself is just the `verse-active` class and needs no
+  // scrolling — Virtuoso already landed us on the verse.
+  useEffect(() => {
+    if (!startingVerse || hasStartedHighlightTimer.current) return;
+    if (!versesByNumber.has(startingVerse)) return;
+    hasStartedHighlightTimer.current = true;
+    const timer = setTimeout(() => store.getState().clearHighlight(), 2600);
+    return () => clearTimeout(timer);
+  }, [versesByNumber, startingVerse, store]);
+
+  // Snap the deep-linked target back to its landing spot. initialTopMostItemIndex
+  // only positions at mount, so as verses above the target swap skeleton -> real
+  // (taller) content — or the Arabic font swaps in and reflows them — the target
+  // would otherwise drift down. Re-pin only until the reader scrolls themselves,
+  // and never while recitation is driving the scroll.
+  const repinTarget = useCallback(() => {
+    if (!startingVerse || hasUserScrolled.current) return;
+    if (currentVerse !== undefined) return;
+    virtuosoRef.current?.scrollToIndex({
+      index: startingVerse - 1,
+      align: "start",
+      offset: -SCROLL_OFFSET,
+    });
+  }, [startingVerse, currentVerse]);
+
+  // Re-pin each time a page lands above the target (versesByNumber grows).
+  useEffect(() => {
+    if (!startingVerse || !versesByNumber.has(startingVerse)) return;
+    repinTarget();
+  }, [versesByNumber, startingVerse, repinTarget]);
+
+  // Re-pin once the mushaf font has loaded, since the fallback -> font swap
+  // reflows every ayah and shifts the target.
+  useEffect(() => {
+    if (!startingVerse) return;
+    let cancelled = false;
+    document.fonts?.ready.then(() => {
+      if (!cancelled) repinTarget();
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [startingVerse, repinTarget]);
+
+  // The reader's own scroll releases the target — from then on it stays where
+  // they leave it. (Programmatic scrollToIndex fires `scroll`, not these input
+  // events, so re-pinning never trips this.)
+  useEffect(() => {
+    if (!startingVerse) return;
+    const release = () => {
+      hasUserScrolled.current = true;
+    };
+    window.addEventListener("wheel", release, { passive: true });
+    window.addEventListener("touchmove", release, { passive: true });
+    window.addEventListener("keydown", release);
+    return () => {
+      window.removeEventListener("wheel", release);
+      window.removeEventListener("touchmove", release);
+      window.removeEventListener("keydown", release);
+    };
+  }, [startingVerse]);
 
   // Stable per-verse play/tafsir handlers, cached by verse number, so memoized
   // Ayahs don't re-render just because the list rebuilt their callbacks.
@@ -121,73 +172,6 @@ export function useAyahList({
     [requestVerse, openTafsir],
   );
 
-  // Load the starting page on mount. The load is deferred to after the first
-  // paint so the skeleton scaffold renders first.
-  useEffect(() => {
-    if (!startingVerse) {
-      window.scrollTo(0, 0);
-    }
-    const page = startingVerse ? versePage(startingVerse) : 1;
-    const frame = requestAnimationFrame(() => loadPage(page));
-    return () => cancelAnimationFrame(frame);
-  }, [startingVerse, loadPage]);
-
-  // The observer is built lazily above (getObserver); this only tears it down
-  // when the list unmounts so we don't leak one per surah visit.
-  useEffect(() => {
-    return () => {
-      observerRef.current?.disconnect();
-      observerRef.current = null;
-    };
-  }, []);
-
-  // After the starting page's verses are in place, jump to + highlight the
-  // target. Instant (not smooth) so we can record its landed offset and pin it.
-  useEffect(() => {
-    if (!startingVerse || hasScrolledToTarget.current) return;
-    if (!versesByNumber.has(startingVerse)) return;
-
-    const el = document.getElementById(`verse-${startingVerse}`);
-    if (!el) return;
-    hasScrolledToTarget.current = true;
-    el.scrollIntoView({ block: "start" });
-    anchorTop.current = el.getBoundingClientRect().top;
-    isAnchoring.current = true;
-
-    const timer = setTimeout(() => store.getState().clearHighlight(), 2600);
-    return () => clearTimeout(timer);
-  }, [versesByNumber, startingVerse, store]);
-
-  // Release the anchor as soon as the user initiates their own scroll, so later
-  // upward loads don't yank them back to the target.
-  useEffect(() => {
-    if (!startingVerse) return;
-    const release = () => {
-      isAnchoring.current = false;
-    };
-    window.addEventListener("wheel", release, { passive: true });
-    window.addEventListener("touchmove", release, { passive: true });
-    window.addEventListener("keydown", release);
-    return () => {
-      window.removeEventListener("wheel", release);
-      window.removeEventListener("touchmove", release);
-      window.removeEventListener("keydown", release);
-    };
-  }, [startingVerse]);
-
-  // When a page loads above the target, the target shifts down; re-pin it to the
-  // offset it landed on. Runs before paint to avoid a visible jump. No-op for
-  // pages loaded below the target (its offset is unchanged).
-  useIsomorphicLayoutEffect(() => {
-    if (!isAnchoring.current || anchorTop.current === null || !startingVerse) {
-      return;
-    }
-    const el = document.getElementById(`verse-${startingVerse}`);
-    if (!el) return;
-    const delta = el.getBoundingClientRect().top - anchorTop.current;
-    if (delta !== 0) window.scrollBy(0, delta);
-  }, [versesByNumber, startingVerse]);
-
   // When recitation moves to a new ayah, re-enable following and make sure its
   // page (and the next) are loaded so the verse is mounted before we scroll.
   // Skipped while the tafsir dialog is open: playing from there must not make
@@ -208,14 +192,14 @@ export function useAyahList({
     if (currentVerse === undefined || !followingRecitation.current) return;
     if (tafsirVerse !== null) return;
     if (!versesByNumber.has(currentVerse)) return;
-    const el = document.getElementById(`verse-${currentVerse}`);
-    if (!el) return;
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    el.scrollIntoView({
+    virtuosoRef.current?.scrollToIndex({
+      index: currentVerse - 1,
+      align: "start",
       behavior: prefersReduced ? "auto" : "smooth",
-      block: "start",
+      offset: -SCROLL_OFFSET,
     });
   }, [currentVerse, tafsirVerse, versesByNumber]);
 
@@ -246,9 +230,10 @@ export function useAyahList({
     currentVerse,
     requestVerse,
     openTafsir,
-    observeArticle,
-    unobserveArticle,
     getVerseHandlers,
     activeVerse,
+    virtuosoRef,
+    onRangeChanged,
+    initialTopMostItemIndex,
   };
 }
