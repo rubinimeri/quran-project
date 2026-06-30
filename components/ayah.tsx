@@ -6,12 +6,16 @@ import { Separator } from "@/components/ui/separator";
 import { VerseActions } from "./verse-actions";
 import { IconBook } from "@tabler/icons-react";
 import { useAudioPlayerStore } from "@/stores/audio-player-store";
-import { Segment, Word } from "@quranjs/api";
+import { Segment, Word as W } from "@quranjs/api";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+type Word = W & {
+  textQpcHafs?: string;
+};
 
 type AyahTranslation = {
   text: string;
@@ -133,6 +137,7 @@ function ActiveVerseWords({
   );
 }
 
+// TODO: make this component more readable
 function AyahBase({
   chapter,
   verseNumber,

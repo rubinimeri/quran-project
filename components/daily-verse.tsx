@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Verse } from "@quranjs/api";
+import type { Verse } from "@/stores/ayah-list-store";
 
 import { stripHtmlTags } from "@/lib/format";
 import { Separator } from "@/components/ui/separator";

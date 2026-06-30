@@ -1,5 +1,5 @@
 import { createStore } from "zustand/vanilla";
-import { Verse } from "@quranjs/api";
+import { Verse as V } from "@quranjs/api";
 
 import { fetchVerses, versePage } from "@/lib/verses";
 
@@ -7,6 +7,10 @@ type AyahListConfig = {
   chapter: string | number;
   versesCount: number;
   startingVerse?: number;
+};
+
+export type Verse = V & {
+  textQpcHafs?: string;
 };
 
 type AyahListState = {
