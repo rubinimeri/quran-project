@@ -62,20 +62,22 @@ export function useAyahList({
     return () => cancelAnimationFrame(frame);
   }, [startingVerse, loadPage]);
 
-  // Fetch the pages covering Virtuoso's rendered range, plus one page on either
-  // side. The neighbour prefetch is what keeps reverse scrolling smooth: the page
-  // just above the viewport is already loaded, so items enter the top overscan at
-  // their real height instead of swapping skeleton -> taller real content above
-  // the viewport (which would force Virtuoso to retro-correct the scroll = jank).
+  // Load only the pages the rendered range actually spans. Virtuoso's top
+  // overscan (increaseViewportBy) means skeletons approaching the viewport are
+  // already in this range, so their page loads just before they scroll in.
   // loadPage is idempotent, so calling it on every range change is cheap.
   const onRangeChanged = useCallback(
     ({ startIndex, endIndex }: ListRange) => {
-      const maxPage = versePage(versesCount);
-      const first = Math.max(1, versePage(startIndex + 1) - 1);
-      const last = Math.min(maxPage, versePage(endIndex + 1) + 1);
+      // On a deep-linked mount Virtuoso first reports a range anchored at the top
+      // of the list (window scroll is still 0) before it jumps to the target.
+      // Ignore that transient range so we don't fetch page 1 needlessly; the
+      // mount effect already loads the target's page. Resume once it has landed.
+      if (startingVerse && !versesByNumber.has(startingVerse)) return;
+      const first = versePage(startIndex + 1);
+      const last = versePage(endIndex + 1);
       for (let page = first; page <= last; page++) loadPage(page);
     },
-    [loadPage, versesCount],
+    [loadPage, startingVerse, versesByNumber],
   );
 
   // Where Virtuoso starts: at the target verse (offset clear of the navbar) or

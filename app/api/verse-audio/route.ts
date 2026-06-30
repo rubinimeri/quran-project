@@ -9,7 +9,7 @@ export type GetVerseAudioResult = {
   error?: string;
 };
 
-const PER_PAGE = 50;
+const PER_PAGE = 10;
 
 export async function GET(request: NextRequest) {
   const chapter = request.nextUrl.searchParams.get("chapter")?.trim();

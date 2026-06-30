@@ -30,7 +30,7 @@ type TafsirDialogProps = {
   verseNumber: number;
   versesCount: number;
   /** The header ayah; undefined while its page is still loading. */
-  textUthmani?: string;
+  textQpcHafs?: string;
   translations?: AyahTranslation[];
   /** Play this ayah's recitation (wires the header's play action). */
   onPlay?: () => void;
@@ -50,7 +50,7 @@ export function TafsirDialog({
   surahName,
   verseNumber,
   versesCount,
-  textUthmani,
+  textQpcHafs,
   translations = [],
   onPlay,
   active = false,
@@ -68,7 +68,7 @@ export function TafsirDialog({
 
   const verseKey = `${chapter}:${verseNumber}`;
   const sourceName = TAFSIRS.find((t) => t.id === tafsirId)?.name ?? "";
-  const verseLoaded = textUthmani !== undefined;
+  const verseLoaded = textQpcHafs !== undefined;
 
   useEffect(() => {
     if (!open) return;
@@ -141,7 +141,7 @@ export function TafsirDialog({
               className="px-6"
               asHeader
               verseNumber={verseNumber}
-              textUthmani={textUthmani}
+              textQpcHafs={textQpcHafs}
               translations={translations}
               onPlay={onPlay}
               active={active}

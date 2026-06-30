@@ -73,8 +73,9 @@ export function AyahList({
       return (
         <Ayah
           className="px-4"
+          chapter={chapter as number}
           verseNumber={verseNumber}
-          textUthmani={verse.textUthmani ?? ""}
+          textQpcHafs={verse.textQpcHafs ?? ""}
           highlighted={tafsirVerse === null && verseNumber === highlightedVerse}
           active={tafsirVerse === null && verseNumber === currentVerse}
           words={verse.words}
@@ -142,7 +143,7 @@ export function AyahList({
         surahName={surahName}
         verseNumber={tafsirVerse ?? 1}
         versesCount={versesCount}
-        textUthmani={activeVerse?.textUthmani}
+        textQpcHafs={activeVerse?.textQpcHafs}
         translations={activeVerse?.translations?.map((t) => ({
           text: t.text,
           resourceName: t.resourceName,

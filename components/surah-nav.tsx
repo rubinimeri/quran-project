@@ -14,7 +14,7 @@ export function SurahNav({ currentId }: SurahNavProps) {
   const hasNext = currentId < 114;
 
   return (
-    <nav className="flex items-center justify-between w-full max-w-2xl mx-auto py-6">
+    <nav className="flex items-center justify-between w-full mx-auto py-6">
       {/* Back to index */}
       <Button
         variant="ghost"

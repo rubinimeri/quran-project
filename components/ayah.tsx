@@ -1,12 +1,17 @@
 "use client";
 
-import { Fragment, memo, useEffect, useRef, useState } from "react";
+import { memo, useMemo, useRef, useState } from "react";
 import { stripHtmlTags } from "@/lib/format";
 import { Separator } from "@/components/ui/separator";
 import { VerseActions } from "./verse-actions";
 import { IconBook } from "@tabler/icons-react";
 import { useAudioPlayerStore } from "@/stores/audio-player-store";
 import { Segment, Word } from "@quranjs/api";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type AyahTranslation = {
   text: string;
@@ -15,8 +20,9 @@ type AyahTranslation = {
 
 type AyahProps = {
   verseNumber: number;
+  chapter?: number;
   loading?: boolean;
-  textUthmani?: string;
+  textQpcHafs?: string;
   translations?: AyahTranslation[];
   highlighted?: boolean;
   active?: boolean;
@@ -40,20 +46,45 @@ const BASE_URL = "https://audio.qurancdn.com/";
 
 function WordSpan({
   text,
+  textTranslation,
   highlighted = false,
   handleWordClick,
 }: {
   text?: string;
+  textTranslation?: string;
   highlighted?: boolean;
   handleWordClick?: () => void;
 }) {
+  // Controlled so the tooltip opens only on click. Hover/focus opens are
+  // ignored (we drop `open === true` from onOpenChange), while pointer-leave
+  // and Escape still close it.
+  const [open, setOpen] = useState(false);
+
+  // Highlight-only words (shown while a verse is being recited) are not
+  // interactive — render plain text so they aren't focusable or announced
+  // as controls.
+  if (!handleWordClick) {
+    return (
+      <span className={highlighted ? "text-gold" : undefined}>
+        {text + " "}
+      </span>
+    );
+  }
+
   return (
-    <span
-      onClick={() => (handleWordClick ? handleWordClick() : null)}
-      className={`cursor-pointer ${highlighted ? "text-gold" : "hover:text-gold"}`}
-    >
-      {text + " "}
-    </span>
+    <Tooltip open={open} onOpenChange={(next) => next || setOpen(false)}>
+      <TooltipTrigger
+        onClick={() => {
+          handleWordClick();
+          setOpen(true);
+        }}
+        className={`cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus:text-gold ${highlighted ? "text-gold" : "hover:text-gold"}`}
+      >
+        {text}
+        &nbsp;
+      </TooltipTrigger>
+      <TooltipContent>{textTranslation}</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -72,10 +103,20 @@ function ActiveVerseWords({
 }) {
   const currentMs = useAudioPlayerStore((state) => state.current) * 1000;
 
+  // Recitation segments are keyed by their own word number (segment[1]), not by
+  // array position: a verse can have fewer segments than words (two words can
+  // share one timing segment), so indexing `segments[index]` drifts every word
+  // after the gap. Look each word up by its `position` instead.
+  const segmentByWord = useMemo(() => {
+    const map = new Map<number, Segment>();
+    for (const segment of segments) map.set(segment[1], segment);
+    return map;
+  }, [segments]);
+
   return (
     <>
       {words.map((word, index) => {
-        const segment: Segment | undefined = segments[index];
+        const segment = segmentByWord.get(word.position);
         const highlighted =
           segment !== undefined &&
           currentMs >= segment[2] &&
@@ -83,7 +124,7 @@ function ActiveVerseWords({
         return (
           <WordSpan
             key={index}
-            text={word.textUthmani}
+            text={word.textQpcHafs}
             highlighted={highlighted}
           />
         );
@@ -93,9 +134,10 @@ function ActiveVerseWords({
 }
 
 function AyahBase({
+  chapter,
   verseNumber,
   loading = false,
-  textUthmani = "",
+  textQpcHafs = "",
   translations = [],
   highlighted = false,
   active = false,
@@ -106,63 +148,74 @@ function AyahBase({
   asHeader = false,
   className,
 }: AyahProps) {
-  const [wordAudioUrl, setWordAudioUrl] = useState<string | undefined>(
-    undefined,
-  );
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
+  const handleWordClick = async (url: string) => {
     const audio = audioRef.current;
-    if (!audio || !wordAudioUrl) return;
+    if (!audio) return;
 
-    let cancelled = false;
+    // Only reload if the source actually changed
+    if (audio.src !== url) {
+      audio.src = url;
+    }
+    audio.currentTime = 0; // always restart from the beginning
 
-    console.log(wordAudioUrl);
-    const playAudio = async () => {
-      try {
-        await audio.play();
-      } catch (err: unknown) {
-        // Ignore interruptions caused by a newer load/play
-        if (!cancelled && err instanceof Error && err.name !== "AbortError") {
-          console.error("Audio playing blocked: ", err);
-        }
+    try {
+      await audio.play();
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name !== "AbortError") {
+        console.error("Audio playing blocked: ", err);
       }
-    };
+    }
+  };
 
-    playAudio();
+  const createAudioUrl = (
+    chapter: string,
+    verseNumber: string,
+    wordIndex: string,
+  ) =>
+    `${BASE_URL}/wbw/${chapter.padStart(3, "0")}_${verseNumber.padStart(3, "0")}_${wordIndex.padStart(3, "0")}.mp3`;
 
-    return () => {
-      cancelled = true;
-      audio.pause(); // stop the current one cleanly before the next effect run
-    };
-  }, [wordAudioUrl]);
-
-  function handleWordClick(url: string) {
-    setWordAudioUrl(url);
-  }
   let arabic;
   if (active && words && segments) {
     arabic = <ActiveVerseWords words={words} segments={segments} />;
   } else if (words) {
-    arabic = words.map((word, index) => (
-      <Fragment key={index}>
-        <audio ref={audioRef} src={wordAudioUrl} preload="metadata" />
-        <WordSpan
-          key={index}
-          text={word.textUthmani}
-          handleWordClick={() => handleWordClick(BASE_URL + word.audioUrl)}
-        />
-      </Fragment>
-    ));
+    arabic = (
+      <>
+        {/* One shared player for the whole verse — each word swaps its src. */}
+        <audio ref={audioRef} preload="metadata" />
+        {words.map((word, index) => (
+          <WordSpan
+            key={index}
+            text={word.textQpcHafs}
+            // Non-word glyphs (e.g. the verse-end marker) have no audio, so
+            // they render as plain, non-interactive text.
+            handleWordClick={
+              word.audioUrl
+                ? () =>
+                    handleWordClick(
+                      createAudioUrl(
+                        String(chapter),
+                        String(verseNumber),
+                        String(word.position),
+                      ),
+                    )
+                : undefined
+            }
+            textTranslation={word.translation.text}
+          />
+        ))}
+      </>
+    );
   } else {
-    arabic = textUthmani;
+    arabic = textQpcHafs;
   }
 
   return (
     <article
       aria-busy={loading || undefined}
       aria-current={!asHeader && active ? "true" : undefined}
-      className={`${className} rounded-4xl ${!asHeader && highlighted ? "verse-active" : ""} ${!asHeader && active ? "verse-active" : ""} group relative flex flex-col gap-5 ${asHeader ? "pb-6" : "py-8 border-b border-border/40 last:border-0"}`}
+      className={`${className} rounded-4xl ${!asHeader && highlighted ? "verse-active" : ""} ${!asHeader && active ? "verse-active" : ""} group relative flex flex-col gap-5 ${asHeader ? "pb-6" : "py-8 border-b border-border/40 last:border-0"} ${!loading ? "fade-up" : ""}`}
     >
       {/* Verse number medallion */}
       <div className={`${loading ? "px-4" : "px-0"} flex items-center gap-3`}>
@@ -173,7 +226,7 @@ function AyahBase({
 
         {!loading && (
           <VerseActions
-            arabic={textUthmani}
+            arabic={textQpcHafs}
             translations={translations.map((t) => stripHtmlTags(t.text))}
             onPlay={onPlay}
             active={active}
@@ -201,7 +254,7 @@ function AyahBase({
         <>
           {/* Arabic text */}
           <p
-            className="text-right text-2xl sm:text-3xl md:text-4xl leading-[2.2] text-foreground font-medium"
+            className="text-right text-2xl sm:text-3xl md:text-4xl leading-[1.6] text-foreground font-medium"
             style={{ fontFamily: "var(--font-quran)" }}
             lang="ar"
             dir="rtl"

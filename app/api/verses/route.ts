@@ -22,17 +22,14 @@ export async function GET(request: NextRequest) {
       chapter as ChapterId,
       {
         page: Number(page),
-        fields: { textUthmani: true },
-        tafsirs: [169],
-        tafsirsFields: {
-          name: true,
-        },
+        fields: { textUthmani: true, textQpcHafs: true },
         translationFields: { resourceName: true },
         translations: [20, 57],
         perPage: VERSES_PER_PAGE,
         words: true,
         wordFields: {
           textUthmani: true,
+          textQpcHafs: true,
         },
       },
     );

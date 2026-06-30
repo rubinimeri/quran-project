@@ -32,7 +32,7 @@ beforeAll(() => {
 function verse(verseNumber: number): Verse {
   return {
     verseNumber,
-    textUthmani: `ARABIC_${verseNumber}`,
+    textQpcHafs: `ARABIC_${verseNumber}`,
     translations: [{ text: `Translation ${verseNumber}`, resourceName: "Test" }],
   } as unknown as Verse;
 }
@@ -74,5 +74,17 @@ describe("AyahList", () => {
 
     // Verse 51 lives on page 2 (50 verses per page).
     await waitFor(() => expect(mockFetch).toHaveBeenCalledWith("2", 2));
+  });
+
+  it("does not fetch page 1 from Virtuoso's transient startup range when deep-linking", async () => {
+    // Verse 240 lives on page 5. Virtuoso reports a top-anchored range on mount
+    // before it jumps to the target; onRangeChanged must ignore it so only the
+    // target's page is fetched, not page 1.
+    mockFetch.mockResolvedValue([verse(240)]);
+
+    renderList({ startingVerse: 240 });
+
+    await waitFor(() => expect(mockFetch).toHaveBeenCalledWith("2", 5));
+    expect(mockFetch).not.toHaveBeenCalledWith("2", 1);
   });
 });

@@ -37,7 +37,7 @@ export function DailyVerse({ verse, surahName }: DailyVerseProps) {
           lang="ar"
           dir="rtl"
         >
-          {verse.textUthmani}
+          {verse.textQpcHafs}
         </p>
 
         {/* Translation */}
