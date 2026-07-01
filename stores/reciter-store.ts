@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { RECITATION_ID } from "@/lib/audio";
+import { CHAPTER_RECITER_ID } from "@/lib/audio";
 
 export type ReciterState = {
-  /** Verse-recitation id of the chosen reciter. */
+  /** Chapter-reciter id of the chosen reciter. */
   recitationId: string;
   setRecitationId: (id: string) => void;
 };
@@ -16,7 +16,7 @@ export type ReciterState = {
 export const useReciterStore = create<ReciterState>()(
   persist(
     (set) => ({
-      recitationId: RECITATION_ID,
+      recitationId: CHAPTER_RECITER_ID,
       setRecitationId: (id) => set({ recitationId: id }),
     }),
     { name: "nur-reciter" },

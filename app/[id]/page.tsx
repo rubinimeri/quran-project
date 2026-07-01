@@ -5,7 +5,7 @@ import { SurahNav } from "@/components/surah-nav";
 import { AudioPlayer } from "@/components/audio-player";
 import { AyahList } from "@/components/ayah-list";
 import { SurahToolbar } from "@/components/surah-toolbar";
-import { toReciterOptions } from "@/lib/reciters";
+import { toChapterReciterOptions } from "@/lib/reciters";
 import { Suspense } from "react";
 
 export default async function SurahPage({
@@ -27,12 +27,12 @@ export default async function SurahPage({
     typeof quranClient.content.v4.chapters.get
   >[0];
 
-  const [chapter, recitations, chapters] = await Promise.all([
+  const [chapter, chapterReciters, chapters] = await Promise.all([
     quranClient.content.v4.chapters.get(chapterId).catch(() => null),
-    quranClient.content.v4.resources.recitations.list().catch(() => []),
+    quranClient.content.v4.resources.chapterReciters.list().catch(() => []),
     quranClient.content.v4.chapters.list().catch(() => []),
   ]);
-  const reciters = toReciterOptions(recitations);
+  const reciters = toChapterReciterOptions(chapterReciters);
 
   const parsedStartingVerse = Number(startingVerseRaw);
   const startingVerse =

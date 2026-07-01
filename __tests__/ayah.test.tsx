@@ -249,7 +249,7 @@ describe("Ayah", () => {
     expect(screen.queryByText("In (the) name")).not.toBeInTheDocument();
   });
 
-  it("highlights the reciting word by segment word-number, not array index", () => {
+  it("highlights the reciting word by segment word-position, not array index", () => {
     // Word 2 has no timing segment (e.g. it shares one with another word).
     // The segment for word 3 must still highlight word 3 — not word 2.
     const words = [
@@ -258,10 +258,12 @@ describe("Ayah", () => {
       { position: 3, textQpcHafs: "WORD_THREE" },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ] as any;
-    // [segmentOrdinal, wordNumber, startMs, endMs] — note word 2 is skipped.
+    // [wordPosition, fromMs, toMs] absolute in the whole-surah timeline — word 2
+    // is skipped, and a malformed entry must be ignored (not crash).
     const segments = [
-      [0, 1, 0, 1000],
-      [1, 3, 1000, 2000],
+      [1, 0, 1000],
+      [3, 1000, 2000],
+      [7], // malformed — no timing, should be skipped
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ] as any;
 
@@ -280,6 +282,7 @@ describe("Ayah", () => {
 
     expect(screen.getByText("WORD_THREE")).toHaveClass("text-gold");
     expect(screen.getByText("WORD_TWO")).not.toHaveClass("text-gold");
+    expect(screen.getByText("WORD_ONE")).not.toHaveClass("text-gold");
   });
 
   it("renders the second translation text", () => {

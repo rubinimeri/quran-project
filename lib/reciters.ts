@@ -1,4 +1,4 @@
-import { type RecitationResource } from "@quranjs/api";
+import { type ChapterReciterResource } from "@quranjs/api";
 
 /** Fallback recitation style when a reciter has none set. */
 export const DEFAULT_STYLE = "Murattal";
@@ -13,31 +13,42 @@ export type ReciterOption = {
   style: string;
 };
 
-/** Human label for a reciter, e.g. `Mishary Rashid Alafasy · Murattal`. */
-export function reciterLabel(reciter: {
-  reciterName?: string;
-  style?: string | null;
-}): string {
-  const name = reciter.reciterName?.trim() ?? "";
-  const style = reciter.style?.trim() || DEFAULT_STYLE;
-  return `${name} · ${style}`;
-}
+// The chapter-reciter resource carries a nested `style` at runtime that the SDK
+// type omits, so we widen it locally (no `any`).
+type ChapterReciterWithStyle = ChapterReciterResource & {
+  style?: { name?: string } | null;
+};
 
 /**
- * Normalize the raw recitations list into Select-ready options: drop entries
- * missing an id or reciter name, stringify the id, and default the style.
+ * Reciters we surface in the dropdown that have no gapless whole-surah file, so
+ * they play ayah by ayah instead. The `verse:` prefix marks the id as belonging
+ * to the verse-recitation id-space; the audio route branches on it.
  */
-export function toReciterOptions(
-  recitations: RecitationResource[],
+export const EXTRA_VERSE_RECITERS: ReciterOption[] = [
+  { id: "verse:8", name: "Mohamed Siddiq al-Minshawi", style: "Mujawwad" },
+];
+
+/**
+ * Normalize the chapter-reciters list into Select-ready options: drop entries
+ * missing an id or name, stringify the id, default the style, append the
+ * ayah-by-ayah extras, and sort alphabetically by name (then style).
+ */
+export function toChapterReciterOptions(
+  reciters: ChapterReciterResource[],
 ): ReciterOption[] {
-  return recitations
+  const options = reciters
     .filter(
-      (r): r is RecitationResource & { id: number; reciterName: string } =>
-        typeof r.id === "number" && Boolean(r.reciterName?.trim()),
+      (r): r is ChapterReciterResource & { id: number; name: string } =>
+        typeof r.id === "number" && Boolean(r.name?.trim()),
     )
     .map((r) => ({
       id: String(r.id),
-      name: r.reciterName.trim(),
-      style: r.style?.trim() || DEFAULT_STYLE,
+      name: r.name.trim(),
+      style:
+        (r as ChapterReciterWithStyle).style?.name?.trim() || DEFAULT_STYLE,
     }));
+
+  return [...options, ...EXTRA_VERSE_RECITERS].sort(
+    (a, b) => a.name.localeCompare(b.name) || a.style.localeCompare(b.style),
+  );
 }

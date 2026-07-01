@@ -6,7 +6,8 @@ import { Separator } from "@/components/ui/separator";
 import { VerseActions } from "./verse-actions";
 import { IconBook } from "@tabler/icons-react";
 import { useAudioPlayerStore } from "@/stores/audio-player-store";
-import { Segment, Word as W } from "@quranjs/api";
+import { type WordSegment } from "@/lib/audio";
+import { Word as W } from "@quranjs/api";
 import {
   Tooltip,
   TooltipContent,
@@ -31,7 +32,7 @@ type AyahProps = {
   highlighted?: boolean;
   active?: boolean;
   words?: Word[];
-  segments?: Segment[];
+  segments?: WordSegment[];
   onPlay?: () => void;
   onOpenTafsir?: () => void;
   className?: string;
@@ -104,17 +105,20 @@ function ActiveVerseWords({
   segments,
 }: {
   words: Word[];
-  segments: Segment[];
+  segments: WordSegment[];
 }) {
   const currentMs = useAudioPlayerStore((state) => state.current) * 1000;
 
-  // Recitation segments are keyed by their own word number (segment[1]), not by
-  // array position: a verse can have fewer segments than words (two words can
-  // share one timing segment), so indexing `segments[index]` drifts every word
-  // after the gap. Look each word up by its `position` instead.
+  // Segments are keyed by their own word position (segment[0]), not by array
+  // index: a verse can have fewer segments than words (two words can share one
+  // timing), so indexing `segments[index]` drifts every word after the gap.
+  // Look each word up by its `position` instead; skip any malformed segment.
   const segmentByWord = useMemo(() => {
-    const map = new Map<number, Segment>();
-    for (const segment of segments) map.set(segment[1], segment);
+    const map = new Map<number, WordSegment>();
+    for (const segment of segments) {
+      if (segment.length < 3) continue;
+      map.set(segment[0], segment);
+    }
     return map;
   }, [segments]);
 
@@ -124,8 +128,8 @@ function ActiveVerseWords({
         const segment = segmentByWord.get(word.position);
         const highlighted =
           segment !== undefined &&
-          currentMs >= segment[2] &&
-          currentMs <= segment[3];
+          currentMs >= segment[1] &&
+          currentMs <= segment[2];
         return (
           <WordSpan
             key={index}

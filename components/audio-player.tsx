@@ -11,19 +11,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useAudioPlayer } from "@/hooks/use-audio-player";
+import { formatTime } from "@/lib/format";
 
 type AudioPlayerProps = {
   chapter: string | number;
   versesCount: number;
   surahName: string;
 };
-
-function formatTime(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
 
 export function AudioPlayer({
   chapter,
@@ -32,7 +26,8 @@ export function AudioPlayer({
 }: AudioPlayerProps) {
   const {
     audioRef,
-    audioFiles,
+    src,
+    verses,
     ready,
     loadError,
     index,
@@ -47,7 +42,7 @@ export function AudioPlayer({
     resumeAfterSeek,
   } = useAudioPlayer({ chapter });
 
-  const verseNumber = audioFiles[index]?.verseNumber ?? index + 1;
+  const verseNumber = verses[index]?.verseNumber ?? index + 1;
   const subtitle = loadError
     ? "Audio unavailable"
     : ready
@@ -57,11 +52,7 @@ export function AudioPlayer({
   return (
     <>
       {/* Kept mounted across hide/show so playback state survives. */}
-      <audio
-        ref={audioRef}
-        src={audioFiles[index]?.audioUrl}
-        preload="metadata"
-      />
+      <audio ref={audioRef} src={src ?? undefined} preload="metadata" />
 
       {/* The bar stays hidden until playback has started (tap an ayah to play). */}
       {started && (
@@ -96,7 +87,7 @@ export function AudioPlayer({
 
               <Button
                 onClick={() => skip(1)}
-                disabled={!ready || index >= audioFiles.length - 1}
+                disabled={!ready || index >= verses.length - 1}
                 aria-label="Next ayah"
                 variant="ghost"
                 size="icon"
@@ -116,7 +107,7 @@ export function AudioPlayer({
               </span>
             </div>
 
-            {/* Seek bar — scoped to the current ayah */}
+            {/* Seek bar — spans the whole surah (absolute position) */}
             <div className="flex-1 flex items-center gap-2">
               <span className="text-[10px] text-muted-foreground tabular-nums text-right w-max">
                 {formatTime(current)}
@@ -131,7 +122,7 @@ export function AudioPlayer({
                 disabled={!ready}
                 aria-label="Seek"
               />
-              <span className="text-[10px] text-muted-foreground tabular-nums w-8 shrink-0">
+              <span className="text-[10px] text-muted-foreground tabular-nums w-max shrink-0">
                 {formatTime(duration)}
               </span>
             </div>

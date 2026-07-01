@@ -44,7 +44,7 @@ export function AyahList({
     onRangeChanged,
     initialTopMostItemIndex,
   } = useAyahList({ chapter, versesCount, startingVerse });
-  const audioFiles = useAudioPlayerStore((state) => state.audioFiles);
+  const verses = useAudioPlayerStore((state) => state.verses);
 
   // Virtuoso reaches for browser-only APIs (requestAnimationFrame, window) in its
   // render/measure path, which throws during SSR. It also can't measure on the
@@ -79,7 +79,7 @@ export function AyahList({
           highlighted={tafsirVerse === null && verseNumber === highlightedVerse}
           active={tafsirVerse === null && verseNumber === currentVerse}
           words={verse.words}
-          segments={audioFiles[index]?.segments}
+          segments={verses[index]?.segments}
           onPlay={handlers.onPlay}
           onOpenTafsir={handlers.onOpenTafsir}
           translations={verse.translations ?? EMPTY_TRANSLATIONS}
@@ -88,7 +88,7 @@ export function AyahList({
     },
     [
       versesByNumber,
-      audioFiles,
+      verses,
       highlightedVerse,
       currentVerse,
       tafsirVerse,
