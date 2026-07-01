@@ -98,7 +98,7 @@ export function Navbar() {
             type="button"
             onClick={() => setSearchOpen(true)}
             aria-label="Open search"
-            className="ml-auto group flex h-8 items-center gap-2 rounded-full border border-border bg-muted/40 pl-3 pr-2 transition-colors duration-200 ease-out hover:border-gold/50 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="hidden sm:flex ml-auto group h-8 items-center gap-2 rounded-full border border-border bg-muted/40 pl-3 pr-2 transition-colors duration-200 ease-out hover:border-gold/50 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <IconSearch
               size={14}
@@ -113,7 +113,7 @@ export function Navbar() {
           </button>
 
           {/* Right zone — nav links, theme, mobile toggle */}
-          <div className="flex items-center gap-1">
+          <div className="ml-auto sm:ml-0 flex items-center gap-1">
             <nav className="hidden sm:flex items-center gap-0.5">
               {navLinks.map(({ label, href }) => (
                 <Button
@@ -128,6 +128,14 @@ export function Navbar() {
                 </Button>
               ))}
             </nav>
+            <button
+              type="button"
+              onClick={openSearchFromMenu}
+              aria-label="Open search"
+              className="ml-auto w-8 h-8 flex sm:hidden items-center justify-center text-muted-foreground/70 hover:text-gold transition-colors"
+            >
+              <IconSearch size={18} />
+            </button>
 
             {/* Theme toggle — visible on all breakpoints */}
             <ThemeToggle />

@@ -9,7 +9,7 @@ export default async function Page() {
     quranClient.content.v4.juzs.list().catch(() => null),
     quranClient.content.v4.verses
       .random({
-        fields: { chapterId: true, text_uthmani: true },
+        fields: { chapterId: true, textQpcHafs: true },
         translations: [20],
       })
       .catch(() => null),

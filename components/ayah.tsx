@@ -78,11 +78,12 @@ function WordSpan({
   return (
     <Tooltip open={open} onOpenChange={(next) => next || setOpen(false)}>
       <TooltipTrigger
-        onClick={() => {
+        onClick={(e) => {
           handleWordClick();
           setOpen(true);
+          e.currentTarget.focus();
         }}
-        className={`cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus:text-gold ${highlighted ? "text-gold" : "hover:text-gold"}`}
+        className={`cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus:text-gold active:text-gold ${highlighted ? "text-gold" : "hover:text-gold"}`}
       >
         {text}
         &nbsp;
@@ -259,7 +260,7 @@ function AyahBase({
         <>
           {/* Arabic text */}
           <p
-            className="text-right text-2xl sm:text-3xl md:text-4xl leading-[1.6] text-foreground font-medium"
+            className="text-right text-3xl md:text-4xl leading-[1.6] text-foreground font-medium"
             style={{ fontFamily: "var(--font-quran)" }}
             lang="ar"
             dir="rtl"

@@ -160,7 +160,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search surahs, verses…"
-                className="w-full flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/40 outline-none"
+                className="w-full flex-1 bg-transparent text-foreground placeholder:text-muted-foreground/40 outline-none"
               />
               {query && (
                 <button

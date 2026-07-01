@@ -32,7 +32,7 @@ export function DailyVerse({ verse, surahName }: DailyVerseProps) {
 
         {/* Arabic */}
         <p
-          className="text-right text-2xl sm:text-3xl line-clamp-2 leading-[2.2] text-foreground"
+          className="text-right text-2xl sm:text-3xl line-clamp-2 leading-[1.6] text-foreground"
           style={{ fontFamily: "var(--font-quran)" }}
           lang="ar"
           dir="rtl"
