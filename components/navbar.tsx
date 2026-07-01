@@ -13,6 +13,8 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { SearchDialog } from "@/components/search-dialog";
+import { shouldHideNavbar, isSurahPath } from "@/lib/navbar-scroll";
+import { useNavVisibilityStore } from "@/stores/nav-visibility-store";
 
 const navLinks = [
   { label: "Read", href: "/" },
@@ -26,6 +28,9 @@ const MENU_STAGGER = ["", "delay-100", "delay-200", "delay-300"];
 export function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Shared with the surah toolbar so both bars move in lockstep on scroll.
+  const hidden = useNavVisibilityStore((s) => s.hidden);
+  const setHidden = useNavVisibilityStore((s) => s.setHidden);
   const pathname = usePathname();
   const menuToggleRef = useRef<HTMLButtonElement>(null);
   const menuCloseRef = useRef<HTMLButtonElement>(null);
@@ -41,6 +46,41 @@ export function Navbar() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  // Auto-hide the navbar on scroll-down, but only on surah pages and never
+  // while the mobile menu is open (its close control must stay reachable).
+  const autoHide = isSurahPath(pathname) && !menuOpen;
+
+  useEffect(() => {
+    if (!autoHide) return;
+
+    // Reveal the navbar on entry and whenever we navigate to a new surah.
+    setHidden(false);
+
+    // Compute synchronously in the scroll handler rather than inside
+    // requestAnimationFrame: iOS Safari defers rAF callbacks until a touch
+    // scroll settles, which would freeze the navbar mid-gesture. setHidden is
+    // only called when the visibility actually flips, so this stays cheap.
+    let lastY = window.scrollY;
+    let currentlyHidden = false;
+
+    function onScroll() {
+      const currentY = window.scrollY;
+      const next = shouldHideNavbar({
+        currentY,
+        lastY,
+        wasHidden: currentlyHidden,
+      });
+      lastY = currentY;
+      if (next !== currentlyHidden) {
+        currentlyHidden = next;
+        setHidden(next);
+      }
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [autoHide, pathname, setHidden]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -73,7 +113,11 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-border/30 bg-background/70 backdrop-blur-md">
+      <header
+        className={`sticky top-0 z-40 w-full border-b border-border/30 bg-background/70 backdrop-blur-md transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none ${
+          autoHide && hidden ? "-translate-y-full" : "translate-y-0"
+        }`}
+      >
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-4">
           {/* Wordmark */}
           <Link href="/" className="flex items-baseline gap-2 shrink-0">

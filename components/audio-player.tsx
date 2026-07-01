@@ -65,7 +65,7 @@ export function AudioPlayer({
 
       {/* The bar stays hidden until playback has started (tap an ayah to play). */}
       {started && (
-        <div className="fixed bottom-0 inset-x-0 z-[60] border-t border-border/50 bg-card/80 backdrop-blur-md px-4 py-3">
+        <div className="fixed bottom-0 inset-x-0 z-[60] border-t border-border/30 bg-background/70 backdrop-blur-md  px-4 py-3">
           <div className="max-w-2xl mx-auto flex items-center gap-3">
             {/* Transport controls */}
             <div className="flex items-center gap-1 shrink-0">

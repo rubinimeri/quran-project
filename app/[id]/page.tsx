@@ -4,6 +4,8 @@ import { SurahHeader } from "@/components/surah-header";
 import { SurahNav } from "@/components/surah-nav";
 import { AudioPlayer } from "@/components/audio-player";
 import { AyahList } from "@/components/ayah-list";
+import { SurahToolbar } from "@/components/surah-toolbar";
+import { toReciterOptions } from "@/lib/reciters";
 import { Suspense } from "react";
 
 export default async function SurahPage({
@@ -25,9 +27,12 @@ export default async function SurahPage({
     typeof quranClient.content.v4.chapters.get
   >[0];
 
-  const chapter = await quranClient.content.v4.chapters
-    .get(chapterId)
-    .catch(() => null);
+  const [chapter, recitations, chapters] = await Promise.all([
+    quranClient.content.v4.chapters.get(chapterId).catch(() => null),
+    quranClient.content.v4.resources.recitations.list().catch(() => []),
+    quranClient.content.v4.chapters.list().catch(() => []),
+  ]);
+  const reciters = toReciterOptions(recitations);
 
   const parsedStartingVerse = Number(startingVerseRaw);
   const startingVerse =
@@ -49,9 +54,14 @@ export default async function SurahPage({
 
   return (
     <main className="surah-glow min-h-screen pb-24">
-      <div className="max-w-5xl mx-auto ">
-        <SurahNav currentId={numericId} />
+      <SurahToolbar
+        chapters={chapters}
+        reciters={reciters}
+        currentSurahId={numericId}
+        versesCount={chapter.versesCount}
+      />
 
+      <div className="max-w-5xl mx-auto ">
         <SurahHeader
           id={numericId}
           nameSimple={chapter.nameSimple}

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { fetchVerseAudio } from "@/lib/audio";
 import { useRecitationStore } from "@/stores/recitation-store";
+import { useReciterStore } from "@/stores/reciter-store";
 import { useAudioPlayerStore } from "@/stores/audio-player-store";
 
 type UseAudioPlayerParams = {
@@ -34,12 +35,16 @@ export function useAudioPlayer({ chapter }: UseAudioPlayerParams) {
   const requestedVerse = useRecitationStore((s) => s.requestedVerse);
   const requestVerse = useRecitationStore((s) => s.requestVerse);
 
+  const recitationId = useReciterStore((s) => s.recitationId);
+
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Fetch every verse recitation for the chapter up front.
+  // Fetch every verse recitation for the chapter up front. Re-runs when the
+  // reciter changes so the new voice replaces the loaded audio (the store keeps
+  // the current `index`, so playback stays on the same ayah).
   useEffect(() => {
     let cancelled = false;
-    fetchVerseAudio(chapter)
+    fetchVerseAudio(chapter, recitationId)
       .then((files) => {
         if (cancelled) return;
         loadAudio(files);
@@ -50,7 +55,7 @@ export function useAudioPlayer({ chapter }: UseAudioPlayerParams) {
     return () => {
       cancelled = true;
     };
-  }, [chapter, failAudio, loadAudio]);
+  }, [chapter, recitationId, failAudio, loadAudio]);
 
   // Clear the shared highlight when the player unmounts (e.g. navigating away).
   useEffect(() => () => setCurrentVerse(undefined), [setCurrentVerse]);
@@ -85,6 +90,18 @@ export function useAudioPlayer({ chapter }: UseAudioPlayerParams) {
     if (!playing) return;
     audioRef.current?.play().catch(() => {});
   }, [index, playing]);
+
+  // Switching reciter swaps the current ayah's source under the same `index`,
+  // so the drive effect (keyed on index) won't re-fire. Restart from the top of
+  // the ayah here to keep playing it in the new voice.
+  const currentUrl = audioFiles[index]?.audioUrl;
+  useEffect(() => {
+    if (!playing || !currentUrl) return;
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  }, [currentUrl, playing]);
 
   // Publish the active verse so the list can highlight + follow it; clear it
   // whenever playback isn't running.

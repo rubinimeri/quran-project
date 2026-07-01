@@ -4,7 +4,7 @@ import { DailyVerse } from "@/components/daily-verse";
 import { SurahExplorer } from "@/components/surah-explorer";
 
 export default async function Page() {
-  const [chapters, juzs, dailyVerse] = await Promise.all([
+  const [chapters, juzs, dailyVerse, recitations] = await Promise.all([
     quranClient.content.v4.chapters.list().catch(() => null),
     quranClient.content.v4.juzs.list().catch(() => null),
     quranClient.content.v4.verses
@@ -13,7 +13,10 @@ export default async function Page() {
         translations: [20],
       })
       .catch(() => null),
+    quranClient.content.v4.resources.recitations.list().catch(() => null),
   ]);
+
+  console.log(recitations);
 
   const surahName =
     dailyVerse && chapters

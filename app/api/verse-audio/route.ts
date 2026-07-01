@@ -13,8 +13,10 @@ const PER_PAGE = 10;
 
 export async function GET(request: NextRequest) {
   const chapter = request.nextUrl.searchParams.get("chapter")?.trim();
+  console.log(chapter);
   const recitation =
     request.nextUrl.searchParams.get("recitation")?.trim() || RECITATION_ID;
+  console.log(recitation);
 
   if (!chapter) {
     return NextResponse.json({ result: { audioFiles: [] } });
