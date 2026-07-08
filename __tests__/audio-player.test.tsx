@@ -5,7 +5,7 @@
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
-import { AudioPlayer } from "@/components/audio-player";
+import { AudioPlayer } from "@/components/surah/audio-player";
 import { useRecitationStore } from "@/stores/recitation-store";
 import { useAudioPlayerStore } from "@/stores/audio-player-store";
 import { fetchChapterAudio } from "../lib/audio";

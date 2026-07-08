@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Ayah } from "@/components/ayah";
+import { Ayah } from "./ayah";
 import {
   DEFAULT_TAFSIR_ID,
   fetchTafsir,

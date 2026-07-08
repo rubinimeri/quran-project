@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-import PrayerCountdown from "@/components/prayer-countdown";
-import { PrayerTimesList } from "@/components/prayer-times-list";
-import { SalahHeader } from "@/components/salah-header";
+import PrayerCountdown from "./prayer-countdown";
+import { PrayerTimesList } from "./prayer-times-list";
+import { SalahHeader } from "./salah-header";
 import { getNextPrayer } from "@/lib/prayer-times";
 import type { PrayerTimes, PrayerTimesResponse } from "@/types/prayer-times";
 

@@ -13,10 +13,10 @@ import {
 } from "@/lib/tasbeeh";
 import { playTick } from "@/lib/tick";
 import { Separator } from "@/components/ui/separator";
-import { AddTasbeehDialog } from "@/components/add-tasbeeh-dialog";
-import { TasbeehControls } from "@/components/tasbeeh-controls";
-import { TasbeehRail } from "@/components/tasbeeh-rail";
-import { TasbeehRing } from "@/components/tasbeeh-ring";
+import { AddTasbeehDialog } from "./add-tasbeeh-dialog";
+import { TasbeehControls } from "./tasbeeh-controls";
+import { TasbeehRail } from "./tasbeeh-rail";
+import { TasbeehRing } from "./tasbeeh-ring";
 
 export function TasbeehDashboard() {
   const [state, setState] = useState<TasbeehState>(DEFAULT_STATE);

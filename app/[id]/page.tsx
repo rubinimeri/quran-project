@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import quranClient from "@/lib/quran";
-import { SurahHeader } from "@/components/surah-header";
-import { SurahNav } from "@/components/surah-nav";
-import { AudioPlayer } from "@/components/audio-player";
-import { AyahList } from "@/components/ayah-list";
-import { SurahToolbar } from "@/components/surah-toolbar";
+import { SurahHeader } from "@/components/surah/surah-header";
+import { SurahNav } from "@/components/surah/surah-nav";
+import { AudioPlayer } from "@/components/surah/audio-player";
+import { AyahList } from "@/components/surah/ayah-list";
+import { SurahToolbar } from "@/components/surah/surah-toolbar";
 import { toChapterReciterOptions } from "@/lib/reciters";
 import { Suspense } from "react";
 

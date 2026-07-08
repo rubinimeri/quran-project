@@ -4,7 +4,7 @@
 
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { TasbeehRail } from "@/components/tasbeeh-rail";
+import { TasbeehRail } from "@/components/tasbeeh/tasbeeh-rail";
 import type { Tasbeeh } from "@/lib/tasbeeh";
 
 const defaultTasbeeh: Tasbeeh = {

@@ -4,7 +4,7 @@
 
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { AddTasbeehDialog } from "@/components/add-tasbeeh-dialog";
+import { AddTasbeehDialog } from "@/components/tasbeeh/add-tasbeeh-dialog";
 
 function openDialog() {
   fireEvent.click(screen.getByLabelText("Add new tasbeeh"));

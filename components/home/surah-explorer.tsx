@@ -7,7 +7,7 @@ import { IconArrowUp, IconArrowDown } from "@tabler/icons-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { SurahCard } from "@/components/surah-card";
+import { SurahCard } from "./surah-card";
 import {
   sortChapters,
   sortByRevelation,

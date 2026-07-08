@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { DuaCard } from "@/components/dua-card";
+import { DuaCard } from "./dua-card";
 import { DUA_CATEGORIES, getDuasByCategory } from "@/lib/duas";
 
 const STAGGER = [

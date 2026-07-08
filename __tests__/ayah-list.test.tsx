@@ -7,7 +7,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { VirtuosoMockContext } from "react-virtuoso";
 import { Verse } from "@quranjs/api";
 
-import { AyahList } from "../components/ayah-list";
+import { AyahList } from "../components/surah/ayah-list";
 import { fetchVerses } from "../lib/verses";
 
 jest.mock("../lib/verses", () => ({

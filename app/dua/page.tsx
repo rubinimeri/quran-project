@@ -1,4 +1,4 @@
-import { DuaExplorer } from "@/components/dua-explorer";
+import { DuaExplorer } from "@/components/dua/dua-explorer";
 
 export const metadata = {
   title: "Du'ā — Nur",

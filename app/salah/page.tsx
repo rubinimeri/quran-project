@@ -1,4 +1,4 @@
-import { SalahDashboard } from "@/components/salah-dashboard";
+import { SalahDashboard } from "@/components/salah/salah-dashboard";
 
 export const dynamic = "force-dynamic";
 

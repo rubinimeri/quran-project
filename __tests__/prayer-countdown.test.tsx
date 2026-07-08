@@ -4,7 +4,7 @@
 
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
-import PrayerCountdown from "@/components/prayer-countdown";
+import PrayerCountdown from "@/components/salah/prayer-countdown";
 import { PrayerTimes } from "@/types/prayer-times";
 import { act } from "react";
 

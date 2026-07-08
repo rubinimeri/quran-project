@@ -2,8 +2,8 @@
 
 import type { Chapter } from "@quranjs/api";
 
-import { ReciterSelect } from "@/components/reciter-select";
-import { SurahNavDrawer } from "@/components/surah-nav-drawer";
+import { ReciterSelect } from "./reciter-select";
+import { SurahNavDrawer } from "./surah-nav-drawer";
 import { useNavVisibilityStore } from "@/stores/nav-visibility-store";
 import { type ReciterOption } from "@/lib/reciters";
 

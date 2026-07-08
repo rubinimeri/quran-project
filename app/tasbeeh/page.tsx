@@ -1,4 +1,4 @@
-import { TasbeehDashboard } from "@/components/tasbeeh-dashboard";
+import { TasbeehDashboard } from "@/components/tasbeeh/tasbeeh-dashboard";
 
 export const metadata = {
   title: "Tasbeeh — Nur",
