@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type VerseActionsProps = {
   arabic: string;
@@ -40,11 +41,12 @@ export function VerseActions({
           aria-label={active ? "Now playing this ayah" : "Play this ayah"}
           variant="ghost"
           size="icon-sm"
-          className={`rounded-full transition-opacity focus-visible:opacity-100 hover:bg-gold/10 hover:text-gold ${
+          className={cn(
+            "rounded-full transition-opacity focus-visible:opacity-100 hover:bg-gold/10 hover:text-gold",
             active
               ? "text-gold opacity-100"
-              : "text-muted-foreground group-hover:opacity-100"
-          }`}
+              : "text-muted-foreground group-hover:opacity-100",
+          )}
         >
           {active ? <IconVolume size={14} /> : <IconPlayerPlay size={14} />}
         </Button>

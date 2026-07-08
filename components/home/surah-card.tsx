@@ -19,8 +19,7 @@ export function SurahCard({ chapter }: SurahCardProps) {
         {/* English info */}
         <div className="flex flex-col min-w-0 flex-1">
           <span
-            className="text-base font-light leading-tight text-foreground group-hover:text-gold transition-colors truncate"
-            style={{ fontFamily: "var(--font-display)" }}
+            className="text-base font-light leading-tight text-foreground group-hover:text-gold transition-colors truncate font-display"
           >
             {nameSimple}
           </span>
@@ -32,8 +31,7 @@ export function SurahCard({ chapter }: SurahCardProps) {
         {/* Arabic name */}
         <div className="flex flex-col items-end shrink-0">
           <span
-            className="text-lg leading-none text-gold-muted group-hover:text-gold transition-colors"
-            style={{ fontFamily: "var(--font-arabic)" }}
+            className="text-lg leading-none text-gold-muted group-hover:text-gold transition-colors font-arabic"
             lang="ar"
             dir="rtl"
           >

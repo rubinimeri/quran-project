@@ -85,8 +85,7 @@ export function TasbeehDashboard() {
       {/* Header — Arabic first, the reverent centerpiece (mirrors /dua) */}
       <div className="w-full max-w-md mx-auto flex flex-col items-center">
         <h1
-          className="lantern-rise delay-100 text-6xl sm:text-7xl leading-none text-gold"
-          style={{ fontFamily: "var(--font-arabic)" }}
+          className="lantern-rise delay-100 text-6xl sm:text-7xl leading-none text-gold font-arabic"
           lang="ar"
           dir="rtl"
         >
@@ -95,8 +94,7 @@ export function TasbeehDashboard() {
 
         {/* English name — supporting cluster settles together */}
         <p
-          className="mt-6 fade-soft delay-400 text-3xl sm:text-4xl font-light tracking-[0.15em] text-foreground"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="mt-6 fade-soft delay-400 text-3xl sm:text-4xl font-light tracking-[0.15em] text-foreground font-display"
         >
           Tasbeeh
         </p>

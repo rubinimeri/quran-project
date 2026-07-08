@@ -28,8 +28,7 @@ export function SalahHeader({
 
       {/* Arabic title — the lantern rising from dusk (signature reveal) */}
       <h1
-        className="lantern-rise delay-200 text-6xl leading-tight text-gold"
-        style={{ fontFamily: "var(--font-arabic)" }}
+        className="lantern-rise delay-200 text-6xl leading-tight text-gold font-arabic"
         lang="ar"
         dir="rtl"
       >
@@ -38,8 +37,7 @@ export function SalahHeader({
 
       {/* English title — supporting cluster settles together (delay-400) */}
       <h2
-        className="fade-soft delay-400 text-3xl font-light tracking-wide text-foreground"
-        style={{ fontFamily: "var(--font-display)" }}
+        className="fade-soft delay-400 text-3xl font-light tracking-wide text-foreground font-display"
       >
         Salah
       </h2>

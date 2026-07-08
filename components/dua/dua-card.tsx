@@ -1,5 +1,6 @@
 import type { Dua } from "@/lib/duas";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 type DuaCardProps = {
   dua: Dua;
@@ -9,7 +10,10 @@ type DuaCardProps = {
 export function DuaCard({ dua, className }: DuaCardProps) {
   return (
     <article
-      className={`relative rounded-2xl border border-gold/20 bg-card/40 px-6 py-8 flex flex-col gap-5 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gold/40 hover:bg-card/60 ${className ?? ""}`}
+      className={cn(
+        "relative rounded-2xl border border-gold/20 bg-card/40 px-6 py-8 flex flex-col gap-5 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gold/40 hover:bg-card/60",
+        className,
+      )}
     >
       {/* Decorative corner glyph */}
       <span className="absolute top-4 right-5 text-gold-muted/20 text-2xl select-none">
@@ -18,8 +22,7 @@ export function DuaCard({ dua, className }: DuaCardProps) {
 
       {/* Arabic — the reverent centerpiece */}
       <p
-        className="text-right text-2xl sm:text-3xl leading-[2.1] text-foreground pl-6"
-        style={{ fontFamily: "var(--font-quran)" }}
+        className="text-right text-2xl sm:text-3xl leading-[2.1] text-foreground pl-6 font-quran"
         lang="ar"
         dir="rtl"
       >
@@ -47,8 +50,7 @@ export function DuaCard({ dua, className }: DuaCardProps) {
       <div className="flex items-center gap-2.5">
         <Separator className="w-6 bg-gold/40 shrink" />
         <cite
-          className="text-base not-italic tracking-wide text-gold-muted shrink-0"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="text-base not-italic tracking-wide text-gold-muted shrink-0 font-display"
         >
           {dua.reference}
         </cite>

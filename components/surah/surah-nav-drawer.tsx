@@ -91,8 +91,7 @@ export function SurahNavDrawer({
         <div className="flex h-full min-h-0 flex-col">
           <DrawerHeader className="px-2 pb-2 md:text-left">
             <DrawerTitle
-              className="text-lg font-light tracking-wide text-gold"
-              style={{ fontFamily: "var(--font-display)" }}
+              className="text-lg font-light tracking-wide text-gold font-display"
             >
               Navigate
             </DrawerTitle>
@@ -157,8 +156,7 @@ export function SurahNavDrawer({
                             {c.nameSimple}
                           </span>
                           <span
-                            className="shrink-0 text-base text-muted-foreground/70"
-                            style={{ fontFamily: "var(--font-arabic)" }}
+                            className="shrink-0 text-base text-muted-foreground/70 font-arabic"
                             lang="ar"
                             dir="rtl"
                           >

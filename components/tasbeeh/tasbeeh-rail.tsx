@@ -2,6 +2,7 @@ import { IconInfinity, IconTrash } from "@tabler/icons-react";
 
 import type { Tasbeeh } from "@/lib/tasbeeh";
 import { INFINITY_ID } from "@/lib/tasbeeh";
+import { cn } from "@/lib/utils";
 
 type TasbeehRailProps = {
   tasbeehs: Tasbeeh[];
@@ -27,12 +28,12 @@ export function TasbeehRail({
           <button
             key={t.id}
             onClick={() => onSelect(t.id)}
-            className={[
+            className={cn(
               "shrink-0 flex items-center gap-1.5 rounded-full border px-3 py-[0.3rem] text-sm transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 group",
               isActive
                 ? "border-gold/50 bg-gold/10 text-gold shadow-[0_0_16px_var(--glow-md)]"
                 : "border-border/40 bg-card/30 text-muted-foreground hover:border-gold/30 hover:text-foreground",
-            ].join(" ")}
+            )}
           >
             {isInf ? <IconInfinity size={13} aria-hidden /> : null}
             <span className="whitespace-nowrap">

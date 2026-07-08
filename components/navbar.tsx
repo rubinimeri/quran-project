@@ -15,6 +15,7 @@ import {
 import { SearchDialog } from "@/components/search-dialog";
 import { shouldHideNavbar, isSurahPath } from "@/lib/navbar-scroll";
 import { useNavVisibilityStore } from "@/stores/nav-visibility-store";
+import { cn } from "@/lib/utils";
 
 const navLinks = [
   { label: "Read", href: "/" },
@@ -114,22 +115,21 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`sticky top-0 z-40 w-full border-b border-border/30 bg-background/70 backdrop-blur-md transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none ${
-          autoHide && hidden ? "-translate-y-full" : "translate-y-0"
-        }`}
+        className={cn(
+          "sticky top-0 z-40 w-full border-b border-border/30 bg-background/70 backdrop-blur-md transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none",
+          autoHide && hidden ? "-translate-y-full" : "translate-y-0",
+        )}
       >
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-4">
           {/* Wordmark */}
           <Link href="/" className="flex items-baseline gap-2 shrink-0">
             <span
-              className="text-xl font-light tracking-wide text-gold"
-              style={{ fontFamily: "var(--font-display)" }}
+              className="text-xl font-light tracking-wide text-gold font-display"
             >
               Nur
             </span>
             <span
-              className="text-base text-gold-muted/80"
-              style={{ fontFamily: "var(--font-arabic)" }}
+              className="text-base text-gold-muted/80 font-arabic"
               lang="ar"
               dir="rtl"
             >
@@ -196,14 +196,16 @@ export function Navbar() {
             >
               <span className="relative w-4 h-3.5 block">
                 <span
-                  className={`absolute left-0 top-0 w-4 h-px bg-foreground/80 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none ${
-                    menuOpen ? "translate-y-[7px] rotate-45" : ""
-                  }`}
+                  className={cn(
+                    "absolute left-0 top-0 w-4 h-px bg-foreground/80 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none",
+                    menuOpen && "translate-y-[7px] rotate-45",
+                  )}
                 />
                 <span
-                  className={`absolute left-0 bottom-0 w-4 h-px bg-foreground/80 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none ${
-                    menuOpen ? "-translate-y-[7px] -rotate-45" : ""
-                  }`}
+                  className={cn(
+                    "absolute left-0 bottom-0 w-4 h-px bg-foreground/80 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none",
+                    menuOpen && "-translate-y-[7px] -rotate-45",
+                  )}
                 />
               </span>
             </button>
@@ -227,14 +229,12 @@ export function Navbar() {
               className="flex items-baseline gap-2 shrink-0 mr-2"
             >
               <span
-                className="text-xl font-light tracking-wide text-gold"
-                style={{ fontFamily: "var(--font-display)" }}
+                className="text-xl font-light tracking-wide text-gold font-display"
               >
                 Nur
               </span>
               <span
-                className="text-base text-gold-muted/80"
-                style={{ fontFamily: "var(--font-arabic)" }}
+                className="text-base text-gold-muted/80 font-arabic"
                 lang="ar"
                 dir="rtl"
               >
@@ -277,12 +277,13 @@ export function Navbar() {
                   key={label}
                   href={href}
                   onClick={closeMenu}
-                  className={`fade-up ${MENU_STAGGER[Math.min(index, MENU_STAGGER.length - 1)]} text-4xl tracking-wide transition-colors ${
+                  className={cn(
+                    "fade-up text-4xl tracking-wide transition-colors font-display",
+                    MENU_STAGGER[Math.min(index, MENU_STAGGER.length - 1)],
                     isActive
                       ? "text-gold"
-                      : "text-foreground/80 hover:text-gold"
-                  }`}
-                  style={{ fontFamily: "var(--font-display)" }}
+                      : "text-foreground/80 hover:text-gold",
+                  )}
                 >
                   {label}
                 </Link>

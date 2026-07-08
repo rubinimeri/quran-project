@@ -83,8 +83,7 @@ export function TasbeehRing({
         {/* Center content */}
         <div className="flex flex-col items-center gap-2 z-10 select-none">
           <span
-            className="text-sm text-gold-muted/80"
-            style={{ fontFamily: "var(--font-arabic)" }}
+            className="text-sm text-gold-muted/80 font-arabic"
             lang="ar"
             dir="rtl"
           >

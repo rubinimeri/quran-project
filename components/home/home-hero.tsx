@@ -13,8 +13,7 @@ export function HomeHero() {
 
       {/* Arabic title */}
       <h1
-        className="mt-6 fade-up delay-200 text-7xl sm:text-8xl leading-none text-gold"
-        style={{ fontFamily: "var(--font-arabic)" }}
+        className="mt-6 fade-up delay-200 text-7xl sm:text-8xl leading-none text-gold font-arabic"
         lang="ar"
         dir="rtl"
       >
@@ -24,8 +23,7 @@ export function HomeHero() {
       {/* App name */}
       <div className="fade-up delay-300 flex flex-col items-center gap-1">
         <p
-          className="text-4xl sm:text-5xl font-light tracking-[0.15em] text-foreground"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="text-4xl sm:text-5xl font-light tracking-[0.15em] text-foreground font-display"
         >
           Nur
         </p>

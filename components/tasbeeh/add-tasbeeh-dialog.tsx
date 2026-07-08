@@ -82,8 +82,7 @@ export function AddTasbeehDialog({ onAdd }: AddTasbeehDialogProps) {
 
         <DialogHeader className="gap-2">
           <DialogTitle
-            className="text-2xl font-normal pr-6 text-balance"
-            style={{ fontFamily: "var(--font-display)" }}
+            className="text-2xl font-normal pr-6 text-balance font-display"
           >
             New Tasbeeh
           </DialogTitle>
@@ -103,14 +102,13 @@ export function AddTasbeehDialog({ onAdd }: AddTasbeehDialogProps) {
             </label>
             <Input
               id="tasbeeh-arabic"
-              className="placeholder:text-muted-foreground/70 placeholder:text-sm text-sm rounded-lg"
+              className="placeholder:text-muted-foreground/70 placeholder:text-sm text-sm rounded-lg font-arabic"
               value={arabic}
               onChange={(e) => setArabic(e.target.value)}
               placeholder="اللَّهُ أَكْبَرُ"
               dir="rtl"
               lang="ar"
               style={{
-                fontFamily: "var(--font-arabic)",
                 fontSize: "1.35rem",
                 lineHeight: 1.8,
               }}

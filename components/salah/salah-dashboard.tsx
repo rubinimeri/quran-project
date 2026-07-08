@@ -81,8 +81,7 @@ export function SalahDashboard() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
         <span
-          className="text-3xl text-gold-muted/50 animate-pulse"
-          style={{ fontFamily: "var(--font-arabic)" }}
+          className="text-3xl text-gold-muted/50 animate-pulse font-arabic"
           lang="ar"
         >
           صلاة

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import { cn } from "@/lib/utils";
 
 type SearchResultItem = {
   resultType: string;
@@ -222,8 +223,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                         </span>
                         {item.arabic && (
                           <span
-                            className="text-base text-muted-foreground/70 shrink-0"
-                            style={{ fontFamily: "var(--font-arabic)" }}
+                            className="text-base text-muted-foreground/70 shrink-0 font-arabic"
                             lang="ar"
                             dir="rtl"
                           >
@@ -236,7 +236,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                 )}
 
                 {verses.length > 0 && (
-                  <section className={surahs.length > 0 ? "mt-1" : ""}>
+                  <section className={cn(surahs.length > 0 && "mt-1")}>
                     <div className="px-5 py-2 flex items-center gap-2">
                       <IconNotes
                         size={11}
@@ -313,7 +313,7 @@ function ResultRow({
       type="button"
       onMouseEnter={onHover}
       onClick={onClick}
-      className={[
+      className={cn(
         "w-full px-5 py-2.5 text-left transition-colors cursor-pointer border-l-2",
         stacked
           ? "flex flex-col items-start gap-0.5"
@@ -321,7 +321,7 @@ function ResultRow({
         focused
           ? "bg-muted/60 border-gold/60"
           : "border-transparent hover:bg-muted/30",
-      ].join(" ")}
+      )}
     >
       {children}
     </button>

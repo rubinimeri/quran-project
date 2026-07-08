@@ -28,8 +28,7 @@ export function SurahHeader({
 
       {/* Arabic name — the lantern rising from dusk (signature reveal) */}
       <h1
-        className="lantern-rise delay-200 text-6xl leading-tight text-gold"
-        style={{ fontFamily: "var(--font-arabic)" }}
+        className="lantern-rise delay-200 text-6xl leading-tight text-gold font-arabic"
         lang="ar"
         dir="rtl"
       >
@@ -38,8 +37,7 @@ export function SurahHeader({
 
       {/* English name — supporting cluster settles together (delay-400) */}
       <h2
-        className="fade-soft delay-400 text-3xl font-light tracking-wide text-foreground"
-        style={{ fontFamily: "var(--font-display)" }}
+        className="fade-soft delay-400 text-3xl font-light tracking-wide text-foreground font-display"
       >
         {nameSimple}
       </h2>
@@ -59,8 +57,7 @@ export function SurahHeader({
       {/* Bismillah */}
       {bismillahPre && (
         <p
-          className="fade-soft delay-500 text-2xl text-gold-muted/80 mt-1"
-          style={{ fontFamily: "var(--font-quran)" }}
+          className="fade-soft delay-500 text-2xl text-gold-muted/80 mt-1 font-quran"
           lang="ar"
           dir="rtl"
         >

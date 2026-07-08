@@ -5,8 +5,7 @@ export default function NotFound() {
     <main className="flex flex-col items-center justify-center min-h-screen gap-4 text-center px-4">
       <p className="text-xs uppercase tracking-[0.3em] text-gold-muted">404</p>
       <h1
-        className="text-5xl font-light text-foreground"
-        style={{ fontFamily: "var(--font-display)" }}
+        className="text-5xl font-light text-foreground font-display"
       >
         Page not found
       </h1>

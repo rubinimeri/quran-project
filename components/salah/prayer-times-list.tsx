@@ -12,6 +12,7 @@ import {
   type ShownPrayer,
 } from "@/lib/prayer-times";
 import type { PrayerTimes } from "@/types/prayer-times";
+import { cn } from "@/lib/utils";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   sunrise: <IconSunrise size={16} />,
@@ -46,14 +47,13 @@ export function PrayerTimesList({
         return (
           <li
             key={name}
-            className={[
-              "fade-up",
+            className={cn(
+              "fade-up relative flex items-center gap-4 rounded-xl border px-5 py-4 transition-all duration-300",
               STAGGER[Math.min(index, STAGGER.length - 1)],
-              "relative flex items-center gap-4 rounded-xl border px-5 py-4 transition-all duration-300",
               isNext
                 ? "border-gold/50 bg-gold/5 shadow-[0_0_20px_var(--glow-sm)]"
                 : "border-border/40 bg-card/30",
-            ].join(" ")}
+            )}
           >
             {/* Gold side bar on next prayer */}
             {isNext && (
@@ -61,24 +61,22 @@ export function PrayerTimesList({
             )}
 
             {/* Icon */}
-            <span className={isNext ? "text-gold" : "text-gold-muted/60"}>
+            <span className={cn(isNext ? "text-gold" : "text-gold-muted/60")}>
               {ICON_MAP[meta.iconKey]}
             </span>
 
             {/* Names */}
             <div className="flex items-center justify-between flex-1 min-w-0">
               <span
-                className={[
-                  "text-base font-light leading-tight transition-colors",
+                className={cn(
+                  "text-base font-light leading-tight transition-colors font-display",
                   isNext ? "text-gold" : "text-foreground",
-                ].join(" ")}
-                style={{ fontFamily: "var(--font-display)" }}
+                )}
               >
                 {name}
               </span>
               <span
-                className="text-xs text-gold-muted/70 leading-none mt-0.5"
-                style={{ fontFamily: "var(--font-arabic)" }}
+                className="text-xs text-gold-muted/70 leading-none mt-0.5 font-arabic"
                 lang="ar"
                 dir="rtl"
               >
@@ -94,10 +92,10 @@ export function PrayerTimesList({
                 </span>
               )}
               <span
-                className={[
+                className={cn(
                   "text-sm tabular-nums font-medium",
                   isNext ? "text-gold" : "text-muted-foreground",
-                ].join(" ")}
+                )}
               >
                 {time}
               </span>

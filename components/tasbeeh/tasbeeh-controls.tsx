@@ -1,5 +1,7 @@
 import { IconRotate, IconVolume, IconVolumeOff } from "@tabler/icons-react";
 
+import { cn } from "@/lib/utils";
+
 type TasbeehControlsProps = {
   onReset: () => void;
   soundEnabled: boolean;
@@ -26,12 +28,12 @@ export function TasbeehControls({ onReset, soundEnabled, onToggleSound }: Tasbee
         aria-label={soundEnabled ? "Disable sound and haptic" : "Enable sound and haptic"}
       >
         <span
-          className={[
+          className={cn(
             "flex items-center justify-center w-10 h-10 rounded-full border transition-colors",
             soundEnabled
               ? "border-gold/40 bg-gold/8 text-gold"
               : "border-border/40 bg-card/30",
-          ].join(" ")}
+          )}
         >
           {soundEnabled ? (
             <IconVolume size={18} aria-hidden />

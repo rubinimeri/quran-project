@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { DuaCard } from "./dua-card";
 import { DUA_CATEGORIES, getDuasByCategory } from "@/lib/duas";
+import { cn } from "@/lib/utils";
 
 const STAGGER = [
   "",
@@ -27,8 +28,7 @@ export function DuaExplorer() {
     <div className="w-full max-w-2xl mx-auto px-4 pt-16 pb-24 flex flex-col items-center">
       {/* Arabic title — the first word: the lantern rising from dusk */}
       <h1
-        className="lantern-rise delay-100 text-6xl sm:text-7xl leading-none text-gold"
-        style={{ fontFamily: "var(--font-arabic)" }}
+        className="lantern-rise delay-100 text-6xl sm:text-7xl leading-none text-gold font-arabic"
         lang="ar"
         dir="rtl"
       >
@@ -37,8 +37,7 @@ export function DuaExplorer() {
 
       {/* English name — supporting cluster settles together (delay-400) */}
       <p
-        className="mt-6 fade-soft delay-400 text-3xl sm:text-4xl font-light tracking-[0.15em] text-foreground"
-        style={{ fontFamily: "var(--font-display)" }}
+        className="mt-6 fade-soft delay-400 text-3xl sm:text-4xl font-light tracking-[0.15em] text-foreground font-display"
       >
         Du&apos;ā
       </p>
@@ -95,7 +94,10 @@ export function DuaExplorer() {
                   <DuaCard
                     key={dua.id}
                     dua={dua}
-                    className={`fade-up ${STAGGER[Math.min(index, STAGGER.length - 1)]}`}
+                    className={cn(
+                      "fade-up",
+                      STAGGER[Math.min(index, STAGGER.length - 1)],
+                    )}
                   />
                 ))
               )}

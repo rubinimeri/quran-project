@@ -127,7 +127,7 @@ describe("Ayah", () => {
       />,
     );
     const arabic = screen.getByText("بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ");
-    expect(arabic.style.fontFamily).toContain("--font-quran");
+    expect(arabic.className).toContain("font-quran");
   });
 
   it("marks the active (currently reciting) verse", () => {
