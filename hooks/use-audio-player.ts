@@ -164,7 +164,15 @@ export function useAudioPlayer({ chapter }: UseAudioPlayerParams) {
       if (!perVerse || sameVerse) playFromVerse(target);
     });
     return () => cancelAnimationFrame(frame);
-  }, [requestedVerse, verses, requestVerse, index, perVerse, startAt, playFromVerse]);
+  }, [
+    requestedVerse,
+    verses,
+    requestVerse,
+    index,
+    perVerse,
+    startAt,
+    playFromVerse,
+  ]);
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;

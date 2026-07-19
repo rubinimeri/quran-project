@@ -4,7 +4,7 @@ import {
   TAFSIRS,
   fetchTafsir,
 } from "@/lib/tafsir";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 export function useTafsir(
   chapter: string | number,
@@ -25,6 +25,7 @@ export function useTafsir(
   const verseKey = `${chapter}:${verseNumber}`;
   const sourceName = TAFSIRS.find((t) => t.id === tafsirId)?.name ?? "";
   const verseLoaded = text !== undefined;
+  const retry = useCallback(() => setReloadKey((k) => k + 1), []);
 
   useEffect(() => {
     if (!open) return;
@@ -77,7 +78,7 @@ export function useTafsir(
     content,
     loading,
     error,
-    setReloadKey,
+    retry,
     showEmpty,
     sourceName,
   };

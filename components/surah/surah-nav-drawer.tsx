@@ -90,9 +90,7 @@ export function SurahNavDrawer({
       <DrawerContent className="data-[vaul-drawer-direction=bottom]:h-[78vh] data-[vaul-drawer-direction=left]:w-[22rem]">
         <div className="flex h-full min-h-0 flex-col">
           <DrawerHeader className="px-2 pb-2 md:text-left">
-            <DrawerTitle
-              className="text-lg font-light tracking-wide text-gold font-display"
-            >
+            <DrawerTitle className="text-lg font-light tracking-wide text-gold font-display">
               Navigate
             </DrawerTitle>
             <DrawerDescription className="sr-only">
@@ -246,7 +244,7 @@ function SearchInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         aria-label={placeholder}
-        className="w-full flex-1 bg-transparent py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground/50"
+        className="w-full flex-1 bg-transparent py-2.5 text-base text-foreground outline-none placeholder:text-muted-foreground/50"
       />
     </div>
   );
@@ -254,8 +252,6 @@ function SearchInput({
 
 function EmptyLine({ children }: { children: React.ReactNode }) {
   return (
-    <p className="px-3 py-6 text-center text-sm text-muted-foreground/60">
-      {children}
-    </p>
+    <p className="px-3 py-6 text-center text-muted-foreground/60">{children}</p>
   );
 }

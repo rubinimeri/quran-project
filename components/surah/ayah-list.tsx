@@ -5,7 +5,7 @@ import { Virtuoso } from "react-virtuoso";
 
 import { useAudioPlayerStore } from "@/stores/audio-player-store";
 import { Ayah } from "./ayah";
-import { TafsirDialog } from "./tafsir-dialog";
+import { TafsirDialog } from "@/components/surah/tafsir-dialog/tafsir-dialog";
 import { useAyahList } from "@/hooks/use-ayah-list";
 
 type AyahListProps = {

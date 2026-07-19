@@ -1,17 +1,13 @@
 "use client";
 
-import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
-
 import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogOverlay,
-  DialogPortal,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Ayah } from "./ayah";
+import { Ayah } from "@/components/surah/ayah";
 import { TAFSIRS } from "@/lib/tafsir";
 import { useTafsir } from "@/hooks/use-tafsir";
 import { TafsirFooter } from "./tafsir-footer";
@@ -63,7 +59,7 @@ export function TafsirDialog({
     hasRange,
     showEmpty,
     verseLoaded,
-    setReloadKey,
+    retry,
     setTafsirId,
   } = useTafsir(chapter, verseNumber, textQpcHafs || "", open);
 
@@ -133,7 +129,7 @@ export function TafsirDialog({
           {loading ? (
             <TafsirSkeleton />
           ) : error ? (
-            <TafsirError onRetry={() => setReloadKey((k) => k + 1)} />
+            <TafsirError onRetry={retry} />
           ) : showEmpty ? (
             <TafsirEmpty sourceName={sourceName} />
           ) : (
