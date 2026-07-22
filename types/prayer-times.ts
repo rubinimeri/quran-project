@@ -101,3 +101,11 @@ export type PrayerTimes = {
   Firstthird: string;
   Lastthird: string;
 };
+
+type SuccessData = Extract<
+  PrayerTimesResponse,
+  { data: { timings: PrayerTimes } }
+>;
+
+export type HijriDate = SuccessData["data"]["date"]["hijri"];
+export type GregorianDate = SuccessData["data"]["date"]["gregorian"];

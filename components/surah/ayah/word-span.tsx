@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { TooltipContent, Tooltip, TooltipTrigger } from "../ui/tooltip";
+import {
+  TooltipContent,
+  Tooltip,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export function WordSpan({

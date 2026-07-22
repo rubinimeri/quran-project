@@ -1,4 +1,4 @@
-import { Bar } from "../ui/bar";
+import { Bar } from "@/components/ui/bar";
 
 export function AyahSkeleton() {
   return (

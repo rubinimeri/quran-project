@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Ayah } from "@/components/surah/ayah";
+import { Ayah } from "@/components/surah/ayah/ayah";
 import { TAFSIRS } from "@/lib/tafsir";
 import { useTafsir } from "@/hooks/use-tafsir";
 import { TafsirFooter } from "./tafsir-footer";

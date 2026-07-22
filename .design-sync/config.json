@@ -1,0 +1,8 @@
+{
+  "projectId": "778bc203-b090-4411-845a-871feaa1ed30",
+  "pkg": "quran-project",
+  "globalName": "Nur",
+  "shape": "package",
+  "cssEntry": ".design-sync/tokens-src/styles.css",
+  "readmeHeader": ".design-sync/conventions.md"
+}

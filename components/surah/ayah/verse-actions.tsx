@@ -10,10 +10,13 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { DownloadAyahButton } from "./download-ayah-button";
 
 type VerseActionsProps = {
   arabic: string;
   translations: string[];
+  chapter?: number;
+  verseNumber: number;
   onPlay?: () => void;
   active?: boolean;
 };
@@ -21,6 +24,8 @@ type VerseActionsProps = {
 export function VerseActions({
   arabic,
   translations,
+  chapter,
+  verseNumber,
   onPlay,
   active = false,
 }: VerseActionsProps) {
@@ -61,6 +66,10 @@ export function VerseActions({
       >
         {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
       </Button>
+
+      {chapter && (
+        <DownloadAyahButton surah={chapter} ayah={verseNumber} />
+      )}
     </div>
   );
 }

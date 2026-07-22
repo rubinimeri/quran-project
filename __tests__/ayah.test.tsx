@@ -4,7 +4,7 @@
 
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { Ayah } from "@/components/surah/ayah";
+import { Ayah } from "@/components/surah/ayah/ayah";
 import { useAudioPlayerStore } from "@/stores/audio-player-store";
 
 const mockTranslations = [

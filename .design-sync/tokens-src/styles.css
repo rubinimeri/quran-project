@@ -1,0 +1,327 @@
+/* Nur Design System — token + style layer.
+ *
+ * Extracted from app/globals.css into a self-contained stylesheet (the source
+ * file is Tailwind v4 source — utility-layer imports plus theme and apply
+ * directives — which cannot ship standalone). This carries the portable layer:
+ * the OKLCH palette (light
+ * "Dawn" + dark "Lantern at Dusk"), radius scale, glow shadows, brand fonts,
+ * and the signature motion + surface utilities. */
+
+@import url("https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@400;500;600;700;900&display=swap");
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("../../app/fonts/Satoshi-Variable.woff2") format("woff2");
+  font-weight: 300 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "UthmanicHafs";
+  src: url("../../app/fonts/UthmanicHafs1Ver18.woff2") format("woff2");
+  font-display: swap;
+}
+
+:root {
+  /* Dawn / Morning Light — near-true-white, amber gold as the single accent */
+  --background: oklch(0.99 0.003 85);
+  --foreground: oklch(0.2 0.025 261);
+  --card: oklch(0.985 0.004 85);
+  --card-foreground: oklch(0.2 0.025 261);
+  --popover: oklch(0.985 0.004 85);
+  --popover-foreground: oklch(0.2 0.025 261);
+  --primary: oklch(0.58 0.12 75);
+  --primary-foreground: oklch(0.2 0.025 261);
+  --secondary: oklch(0.96 0.004 85);
+  --secondary-foreground: oklch(0.25 0.02 261);
+  --muted: oklch(0.965 0.004 85);
+  --muted-foreground: oklch(0.45 0.02 261);
+  --accent: oklch(0.965 0.004 85);
+  --accent-foreground: oklch(0.2 0.025 261);
+  --destructive: oklch(0.55 0.22 27);
+  --border: oklch(0.2 0.02 261 / 10%);
+  --input: oklch(0.2 0.02 261 / 10%);
+  --ring: oklch(0.58 0.12 75);
+  --chart-1: oklch(0.58 0.12 75);
+  --chart-2: oklch(0.52 0.11 75);
+  --chart-3: oklch(0.48 0.1 75);
+  --chart-4: oklch(0.44 0.09 75);
+  --chart-5: oklch(0.4 0.08 75);
+  --radius: 0.45rem;
+  --sidebar: oklch(0.985 0.004 85);
+  --sidebar-foreground: oklch(0.2 0.025 261);
+  --sidebar-primary: oklch(0.58 0.12 75);
+  --sidebar-primary-foreground: oklch(0.2 0.025 261);
+  --sidebar-accent: oklch(0.965 0.004 85);
+  --sidebar-accent-foreground: oklch(0.2 0.025 261);
+  --sidebar-border: oklch(0.2 0.02 261 / 10%);
+  --sidebar-ring: oklch(0.58 0.12 75);
+  --gold: oklch(0.58 0.12 75);
+  --gold-muted: oklch(0.5 0.09 75);
+  /* Theme-aware glow shadows — raised opacity for visibility on light bg */
+  --glow-sm: oklch(0.58 0.12 75 / 0.15);
+  --glow-md: oklch(0.5 0.09 75 / 0.22);
+  /* Tasbeeh ring SVG colours driven by CSS vars */
+  --tasbeeh-arc-start: oklch(0.5 0.09 75);
+  --tasbeeh-arc-end: oklch(0.58 0.12 75);
+  --tasbeeh-track: oklch(0.2 0.02 261 / 0.12);
+
+  /* Radius scale (derived from --radius) */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Brand type families (injected at runtime in the app; resolved here so the
+   * token sheet is self-contained) */
+  --font-sans: "Satoshi", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-arabic: "Amiri", serif;
+  --font-quran: "UthmanicHafs", "Amiri", serif;
+}
+
+.dark {
+  --background: oklch(0.13 0.028 261.692);
+  --foreground: oklch(0.985 0.002 247.839);
+  --card: oklch(0.21 0.034 264.665);
+  --card-foreground: oklch(0.985 0.002 247.839);
+  --popover: oklch(0.21 0.034 264.665);
+  --popover-foreground: oklch(0.985 0.002 247.839);
+  --primary: oklch(0.8 0.11 85);
+  --primary-foreground: oklch(0.26 0.05 173);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.278 0.033 256.848);
+  --muted-foreground: oklch(0.707 0.022 261.325);
+  --accent: oklch(0.278 0.033 256.848);
+  --accent-foreground: oklch(0.985 0.002 247.839);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.551 0.027 264.364);
+  --chart-1: oklch(0.85 0.13 165);
+  --chart-2: oklch(0.77 0.15 163);
+  --chart-3: oklch(0.7 0.15 162);
+  --chart-4: oklch(0.6 0.13 163);
+  --chart-5: oklch(0.51 0.1 166);
+  --sidebar: oklch(0.21 0.034 264.665);
+  --sidebar-foreground: oklch(0.985 0.002 247.839);
+  --sidebar-primary: oklch(0.77 0.15 163);
+  --sidebar-primary-foreground: oklch(0.26 0.05 173);
+  --sidebar-accent: oklch(0.278 0.033 256.848);
+  --sidebar-accent-foreground: oklch(0.985 0.002 247.839);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.551 0.027 264.364);
+  /* Restore the original bright lantern gold for dark mode */
+  --gold: oklch(0.8 0.11 85);
+  --gold-muted: oklch(0.65 0.08 85);
+  /* Theme-aware glow shadows — subtle against the deep night */
+  --glow-sm: oklch(0.8 0.11 85 / 0.06);
+  --glow-md: oklch(0.8 0.11 85 / 0.12);
+  /* Tasbeeh ring SVG colours */
+  --tasbeeh-arc-start: oklch(0.62 0.08 85);
+  --tasbeeh-arc-end: oklch(0.86 0.12 85);
+  --tasbeeh-track: oklch(0 0 0 / 0.5);
+}
+
+/* Base surface */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* ── Motion: entrance reveals ─────────────────────────────────────────────── */
+.fade-up {
+  animation: fade-up 0.7s ease both;
+}
+/* Calm, opacity-led settle for supporting copy clustered around a hero. */
+.fade-soft {
+  animation: fade-soft 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* Signature hero reveal: the lantern resolving out of dusk (rise + de-blur). */
+.lantern-rise {
+  animation: lantern-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-soft {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes lantern-rise {
+  from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* ── Skeleton: glass-over-night base with a single gold light sweeping ─────── */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--muted);
+}
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.58 0.12 75 / 0.18) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: skeleton-sweep 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+.dark .skeleton-shimmer::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.8 0.11 85 / 0.1) 50%,
+    transparent 100%
+  );
+}
+@keyframes skeleton-sweep {
+  to { transform: translateX(100%); }
+}
+@keyframes skeleton-pulse {
+  50% { opacity: 0.55; }
+}
+
+/* ── Verse states ─────────────────────────────────────────────────────────── */
+/* Linked verse highlight — pulses a gold ring then fades */
+.verse-highlight {
+  animation: verse-glow 2.5s ease both;
+}
+@keyframes verse-glow {
+  0% { box-shadow: 0 0 0 2px var(--gold), 0 0 16px 4px var(--glow-md); }
+  60% { box-shadow: 0 0 0 2px var(--gold), 0 0 16px 4px var(--glow-md); }
+  100% { box-shadow: 0 0 0 0px transparent, 0 0 0 0px transparent; }
+}
+/* Currently-reciting ayah — a steady gold ring + glow that follows playback */
+.verse-active {
+  background: color-mix(in oklch, var(--gold) 5%, transparent);
+  transition: box-shadow 0.4s ease, background 0.4s ease;
+}
+
+/* ── Hero CTA "Kindling" — the lantern catches light ──────────────────────── */
+.nur-kindle {
+  transition:
+    transform 340ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 340ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 340ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 0 0 transparent;
+}
+.nur-kindle:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 30px color-mix(in oklch, var(--gold) 45%, transparent),
+    0 0 10px color-mix(in oklch, var(--gold) 40%, transparent);
+}
+.nur-kindle:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 120ms;
+}
+.nur-kindle:focus-visible {
+  box-shadow: 0 0 24px color-mix(in oklch, var(--gold) 40%, transparent);
+}
+
+/* ── Surfaces ─────────────────────────────────────────────────────────────── */
+/* Light: warm amber dawn glow, no teal (One Light Rule) */
+.surah-glow {
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, oklch(0.58 0.12 75 / 0.07) 0%, transparent 70%),
+    var(--background);
+}
+/* Dark: restore teal moonlight + gold lantern */
+.dark .surah-glow {
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, oklch(0.6 0.13 163 / 0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 80% 60%, oklch(0.8 0.11 85 / 0.05) 0%, transparent 60%),
+    var(--background);
+}
+
+/* Search result rows */
+.verse-key {
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--gold);
+  opacity: 0.65;
+  line-height: 1;
+}
+.verse-text {
+  font-size: 14px;
+  color: var(--muted-foreground);
+  line-height: 1.55;
+  white-space: normal;
+}
+.verse-text em {
+  color: var(--gold);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* Tafsir commentary prose */
+.tafsir-prose {
+  font-family: var(--font-sans), var(--font-quran), serif;
+  font-size: 0.95rem;
+  line-height: 1.9;
+  font-weight: 500;
+}
+.tafsir-prose > * + * {
+  margin-top: 1.1em;
+}
+.tafsir-prose h2,
+.tafsir-prose h3 {
+  font-family: var(--font-display), Georgia, serif;
+  color: var(--gold);
+  font-weight: 900;
+  font-size: 1.7rem;
+  line-height: 1.35;
+  letter-spacing: 0.005em;
+  margin-top: 1.75em;
+  text-wrap: balance;
+}
+.tafsir-prose h2:first-child,
+.tafsir-prose h3:first-child {
+  margin-top: 0;
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .fade-up,
+  .fade-soft,
+  .lantern-rise {
+    animation: none;
+  }
+  .skeleton-shimmer::after {
+    animation: none;
+  }
+  .skeleton-shimmer {
+    animation: skeleton-pulse 2s ease-in-out infinite;
+  }
+  .verse-highlight {
+    animation: none;
+    box-shadow: 0 0 0 1px var(--gold);
+  }
+  .verse-active {
+    transition: none;
+  }
+  .nur-kindle {
+    transition: box-shadow 120ms ease, background-color 120ms ease;
+  }
+  .nur-kindle:hover,
+  .nur-kindle:active {
+    transform: none;
+  }
+}

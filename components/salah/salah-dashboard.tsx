@@ -1,81 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 import PrayerCountdown from "./prayer-countdown";
 import { PrayerTimesList } from "./prayer-times-list";
 import { SalahHeader } from "./salah-header";
-import { getNextPrayer } from "@/lib/prayer-times";
-import type { PrayerTimes, PrayerTimesResponse } from "@/types/prayer-times";
-
-type SuccessData = Extract<PrayerTimesResponse, { data: { timings: PrayerTimes } }>;
-type HijriDate = SuccessData["data"]["date"]["hijri"];
-type GregorianDate = SuccessData["data"]["date"]["gregorian"];
-
-type ApiPayload = {
-  timings: [keyof PrayerTimes, string][];
-  tomorrowFajr: ["Fajr", string];
-  hijri: HijriDate;
-  gregorian: GregorianDate;
-  timezone: string;
-};
-
-type State =
-  | { status: "loading" }
-  | { status: "error" }
-  | { status: "ready"; data: ApiPayload; usedFallback: boolean };
-
-async function fetchPrayerTimes(lat?: number, lng?: number): Promise<ApiPayload> {
-  const params =
-    lat != null && lng != null ? `?lat=${lat}&lng=${lng}` : "";
-  const res = await fetch(`/api/prayer-times${params}`);
-  if (!res.ok) throw new Error("api error");
-  return res.json() as Promise<ApiPayload>;
-}
+import { usePrayerTimes } from "@/hooks/use-prayer-times";
 
 export function SalahDashboard() {
-  const [state, setState] = useState<State>({ status: "loading" });
-  const [nextPrayer, setNextPrayer] = useState<keyof PrayerTimes | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load(lat?: number, lng?: number, fallback = false) {
-      try {
-        const data = await fetchPrayerTimes(lat, lng);
-        if (cancelled) return;
-        setState({ status: "ready", data, usedFallback: fallback });
-        setNextPrayer(getNextPrayer(data.timings, new Date()));
-      } catch {
-        if (cancelled) return;
-        setState({ status: "error" });
-      }
-    }
-
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      load(undefined, undefined, true);
-    } else {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => load(pos.coords.latitude, pos.coords.longitude, false),
-        () => load(undefined, undefined, true),
-        { timeout: 8000 },
-      );
-    }
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Refresh the next-prayer highlight every 60 s
-  useEffect(() => {
-    if (state.status !== "ready") return;
-    const timings = state.data.timings;
-    const id = setInterval(() => {
-      setNextPrayer(getNextPrayer(timings, new Date()));
-    }, 60_000);
-    return () => clearInterval(id);
-  }, [state]);
+  const { state, nextPrayer } = usePrayerTimes();
 
   if (state.status === "loading") {
     return (

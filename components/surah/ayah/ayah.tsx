@@ -106,6 +106,8 @@ function AyahBase({
           <VerseActions
             arabic={textQpcHafs}
             translations={translations.map((t) => stripHtmlTags(t.text))}
+            chapter={chapter}
+            verseNumber={verseNumber}
             onPlay={onPlay}
             active={active}
           />
