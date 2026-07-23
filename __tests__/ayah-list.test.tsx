@@ -15,6 +15,15 @@ jest.mock("../lib/verses", () => ({
   fetchVerses: jest.fn(),
 }));
 
+// Translations load over the network via useTranslations; this list test is
+// about skeleton/verse rendering, so stub the hook to keep it fetch-free.
+jest.mock("../hooks/use-translations", () => ({
+  useTranslations: () => ({
+    getVerseTranslations: () => [],
+    loadTranslationsPage: () => {},
+  }),
+}));
+
 const mockFetch = fetchVerses as jest.Mock;
 
 // jsdom has no ResizeObserver; Virtuoso instantiates one even under the mock

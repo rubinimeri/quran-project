@@ -7,6 +7,7 @@ import type { ListRange, VirtuosoHandle } from "react-virtuoso";
 import { versePage } from "@/lib/verses";
 import { useRecitationStore } from "@/stores/recitation-store";
 import { createAyahListStore } from "@/stores/ayah-list-store";
+import { useTranslations } from "@/hooks/use-translations";
 
 // Virtuoso scrolls with the document (useWindowScroll), so a scrolled-to verse
 // lands at the very top of the viewport — under the sticky 56px (h-14) navbar.
@@ -35,11 +36,17 @@ export function useAyahList({
   const highlightedVerse = useStore(store, (s) => s.highlightedVerse);
   const tafsirVerse = useStore(store, (s) => s.tafsirVerse);
   const loadPage = useStore(store, (s) => s.loadPage);
-  const openTafsir = useStore(store, (s) => s.openTafsir);
+  const openTafsirVerse = useStore(store, (s) => s.openTafsir);
   const setTafsirVerse = useStore(store, (s) => s.setTafsirVerse);
 
   const currentVerse = useRecitationStore((s) => s.currentVerse);
   const requestVerse = useRecitationStore((s) => s.requestVerse);
+
+  // Selected translations' content for this chapter, fetched independently of the
+  // verse text and looked up per verse key. `loadTranslationsPage` mirrors the
+  // verse `loadPage` so translations arrive page-by-page as the reader scrolls.
+  const { getVerseTranslations, loadTranslationsPage } =
+    useTranslations(chapter);
   // True while we should keep the reciting ayah centred; a manual scroll turns
   // it off until recitation advances to the next ayah.
   const followingRecitation = useRef(false);
@@ -58,9 +65,12 @@ export function useAyahList({
   // via initialTopMostItemIndex, so we no longer scroll here.
   useEffect(() => {
     const page = startingVerse ? versePage(startingVerse) : 1;
-    const frame = requestAnimationFrame(() => loadPage(page));
+    const frame = requestAnimationFrame(() => {
+      loadPage(page);
+      loadTranslationsPage(page);
+    });
     return () => cancelAnimationFrame(frame);
-  }, [startingVerse, loadPage]);
+  }, [startingVerse, loadPage, loadTranslationsPage]);
 
   // Load only the pages the rendered range actually spans. Virtuoso's top
   // overscan (increaseViewportBy) means skeletons approaching the viewport are
@@ -75,9 +85,12 @@ export function useAyahList({
       if (startingVerse && !versesByNumber.has(startingVerse)) return;
       const first = versePage(startIndex + 1);
       const last = versePage(endIndex + 1);
-      for (let page = first; page <= last; page++) loadPage(page);
+      for (let page = first; page <= last; page++) {
+        loadPage(page);
+        loadTranslationsPage(page);
+      }
     },
-    [loadPage, startingVerse, versesByNumber],
+    [loadPage, loadTranslationsPage, startingVerse, versesByNumber],
   );
 
   // Where Virtuoso starts: at the target verse (offset clear of the navbar) or
@@ -153,6 +166,18 @@ export function useAyahList({
     };
   }, [startingVerse]);
 
+  // Open the tafsir dialog and make sure the target verse's translations are
+  // loaded too. The store's openTafsir already loads the verse page; dialog
+  // prev/next can cross a page boundary into verses whose translations haven't
+  // been fetched yet, so pair it with loadTranslationsPage.
+  const openTafsir = useCallback(
+    (verseNumber: number) => {
+      openTafsirVerse(verseNumber);
+      loadTranslationsPage(versePage(verseNumber));
+    },
+    [openTafsirVerse, loadTranslationsPage],
+  );
+
   // Stable per-verse play/tafsir handlers, cached by verse number, so memoized
   // Ayahs don't re-render just because the list rebuilt their callbacks.
   // requestVerse/openTafsir are stable zustand actions, safe to close over once.
@@ -184,9 +209,11 @@ export function useAyahList({
     const frame = requestAnimationFrame(() => {
       loadPage(versePage(currentVerse));
       loadPage(versePage(currentVerse + 1));
+      loadTranslationsPage(versePage(currentVerse));
+      loadTranslationsPage(versePage(currentVerse + 1));
     });
     return () => cancelAnimationFrame(frame);
-  }, [currentVerse, tafsirVerse, loadPage]);
+  }, [currentVerse, tafsirVerse, loadPage, loadTranslationsPage]);
 
   // Centre the reciting ayah once it's mounted — but only while following and
   // never while the tafsir dialog is open.
@@ -233,6 +260,7 @@ export function useAyahList({
     requestVerse,
     openTafsir,
     getVerseHandlers,
+    getVerseTranslations,
     activeVerse,
     virtuosoRef,
     onRangeChanged,

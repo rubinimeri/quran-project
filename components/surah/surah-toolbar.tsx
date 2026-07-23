@@ -1,8 +1,8 @@
 "use client";
 
-import type { Chapter } from "@quranjs/api";
+import type { Chapter, TranslationResource } from "@quranjs/api";
 
-import { ReciterSelect } from "./reciter-select";
+import { AyahSettings } from "./ayah-settings";
 import { SurahNavDrawer } from "./surah-nav-drawer";
 import { useNavVisibilityStore } from "@/stores/nav-visibility-store";
 import { type ReciterOption } from "@/lib/reciters";
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 type SurahToolbarProps = {
   chapters: Chapter[];
   reciters: ReciterOption[];
+  translations: TranslationResource[];
   currentSurahId: number;
   versesCount: number;
 };
@@ -18,6 +19,7 @@ type SurahToolbarProps = {
 export function SurahToolbar({
   chapters,
   reciters,
+  translations,
   currentSurahId,
   versesCount,
 }: SurahToolbarProps) {
@@ -39,7 +41,7 @@ export function SurahToolbar({
           currentSurahId={currentSurahId}
           versesCount={versesCount}
         />
-        <ReciterSelect reciters={reciters} className="justify-end" hideLabel />
+        <AyahSettings reciters={reciters} translations={translations} />
       </div>
     </div>
   );

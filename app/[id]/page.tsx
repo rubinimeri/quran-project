@@ -7,6 +7,7 @@ import { AyahList } from "@/components/surah/ayah/ayah-list";
 import { SurahToolbar } from "@/components/surah/surah-toolbar";
 import { toChapterReciterOptions } from "@/lib/reciters";
 import { Suspense } from "react";
+import { TranslationResource } from "@quranjs/api";
 
 export default async function SurahPage({
   params,
@@ -27,10 +28,11 @@ export default async function SurahPage({
     typeof quranClient.content.v4.chapters.get
   >[0];
 
-  const [chapter, chapterReciters, chapters] = await Promise.all([
+  const [chapter, chapterReciters, chapters, translations] = await Promise.all([
     quranClient.content.v4.chapters.get(chapterId).catch(() => null),
     quranClient.content.v4.resources.chapterReciters.list().catch(() => []),
     quranClient.content.v4.chapters.list().catch(() => []),
+    quranClient.content.v4.resources.translations.list().catch(() => []),
   ]);
   const reciters = toChapterReciterOptions(chapterReciters);
 
@@ -57,6 +59,7 @@ export default async function SurahPage({
       <SurahToolbar
         chapters={chapters}
         reciters={reciters}
+        translations={translations as TranslationResource[]}
         currentSurahId={numericId}
         versesCount={chapter.versesCount}
       />

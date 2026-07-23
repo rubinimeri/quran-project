@@ -15,10 +15,6 @@ type AyahListProps = {
   startingVerse?: number;
 };
 
-// Stable reference for verses without translations, so a memoized Ayah doesn't
-// re-render on a fresh `[]` each list render.
-const EMPTY_TRANSLATIONS: { text: string; resourceName?: string }[] = [];
-
 // Skeleton ayahs rendered on the server and until hydration, before Virtuoso
 // mounts (see below). Enough to fill a viewport so there's no short flash.
 const SSR_SKELETON_COUNT = 8;
@@ -39,6 +35,7 @@ export function AyahList({
     requestVerse,
     openTafsir,
     getVerseHandlers,
+    getVerseTranslations,
     activeVerse,
     virtuosoRef,
     onRangeChanged,
@@ -82,7 +79,7 @@ export function AyahList({
           segments={verses[index]?.segments}
           onPlay={handlers.onPlay}
           onOpenTafsir={handlers.onOpenTafsir}
-          translations={verse.translations ?? EMPTY_TRANSLATIONS}
+          translations={getVerseTranslations(verse.verseKey)}
         />
       );
     },
@@ -93,6 +90,7 @@ export function AyahList({
       currentVerse,
       tafsirVerse,
       getVerseHandlers,
+      getVerseTranslations,
     ],
   );
 
@@ -144,10 +142,9 @@ export function AyahList({
         verseNumber={tafsirVerse ?? 1}
         versesCount={versesCount}
         textQpcHafs={activeVerse?.textQpcHafs}
-        translations={activeVerse?.translations?.map((t) => ({
-          text: t.text,
-          resourceName: t.resourceName,
-        }))}
+        translations={
+          activeVerse ? getVerseTranslations(activeVerse.verseKey) : undefined
+        }
         active={tafsirVerse !== null && tafsirVerse === currentVerse}
         onPlay={
           tafsirVerse !== null ? () => requestVerse(tafsirVerse) : undefined
